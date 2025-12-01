@@ -1,0 +1,218 @@
+// src/chat/chat.component.ts
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+import {
+  ChatService,
+  ChatSessionSummary,
+  ChatMessage,
+  SessionMessagesResponse as ChatSessionDetail,
+  AskAssistantResponse,
+} from './chat.service';
+import { AuthService } from '../auth/auth.service';
+
+@Component({
+  selector: 'app-chat',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './chat.component.html',
+  styleUrls: ['./chat.component.scss'],
+})
+export class ChatComponent implements OnInit {
+  // 🧾 Lista de sesiones
+  sessions: ChatSessionSummary[] = [];
+
+  // Sesión seleccionada actualmente
+  selectedSession: ChatSessionSummary | null = null;
+
+  // Mensajes de la sesión seleccionada
+  messages: ChatMessage[] = [];
+
+  // Estado UI
+  loadingSessions = false;
+  loadingMessages = false;
+  sending = false;
+
+  // Pregunta que escribe el usuario
+  newQuestion = '';
+
+  // Contenedor de mensajes para auto-scroll
+  @ViewChild('messagesContainer')
+  messagesContainer?: ElementRef<HTMLDivElement>;
+
+  constructor(private readonly chat: ChatService, private readonly auth: AuthService) {}
+
+  // 🚀 Al iniciar, cargamos las sesiones del usuario
+  ngOnInit(): void {
+    this.loadSessions();
+  }
+
+  trackByMsgId(index: number, msg: ChatMessage): number {
+    return msg.id;
+  }
+
+  // =========================
+  //  Sesiones
+  // =========================
+
+  loadSessions(): void {
+    this.loadingSessions = true;
+
+    this.chat.getSessions().subscribe({
+      next: (sessions) => {
+        this.sessions = sessions;
+        this.loadingSessions = false;
+
+        // Si no hay sesión seleccionada y hay sesiones, escogemos la primera
+        if (!this.selectedSession && this.sessions.length > 0) {
+          this.selectSession(this.sessions[0]);
+        }
+      },
+      error: (err) => {
+        console.error('Error cargando sesiones', err);
+        this.loadingSessions = false;
+      },
+    });
+  }
+
+  selectSession(session: ChatSessionSummary): void {
+    this.selectedSession = session;
+    this.loadMessages(session.id);
+  }
+
+  // Botón "Nueva consulta"
+  createNewSession(): void {
+    // Por ahora solo reseteamos la vista;
+    // al enviar una nueva pregunta se creará una sesión en el backend.
+    this.selectedSession = null;
+    this.messages = [];
+    this.newQuestion = '';
+  }
+
+  // =========================
+  //  Mensajes
+  // =========================
+
+  loadMessages(sessionId: number): void {
+    this.loadingMessages = true;
+
+    this.chat.getSessionMessages(sessionId).subscribe({
+      next: (detail: ChatSessionDetail) => {
+        this.selectedSession = detail.session;
+        this.messages = detail.messages;
+        this.loadingMessages = false;
+        this.scrollToBottom();
+      },
+      error: (err) => {
+        console.error('Error cargando mensajes de la sesión', err);
+        this.loadingMessages = false;
+      },
+    });
+  }
+
+  isUser(msg: ChatMessage): boolean {
+    return msg.role === 'user';
+  }
+
+  isAssistant(msg: ChatMessage): boolean {
+    return msg.role === 'assistant';
+  }
+
+  // =========================
+  //  Enviar nueva pregunta
+  // =========================
+
+  sendMessage(): void {
+    const text = this.newQuestion.trim();
+    if (!text || this.sending) return;
+
+    // Puede existir o no una sesión seleccionada.
+    const currentSessionId = this.selectedSession?.id;
+
+    this.sending = true;
+
+    // 1) Añadir mensaje del usuario al hilo (optimista)
+    const userMsg: ChatMessage = {
+      id: Date.now(), // temporal solo en el front
+      role: 'user',
+      model: null,
+      tokensIn: null,
+      tokensOut: null,
+      content: text,
+      createdAt: new Date().toISOString(),
+    };
+    this.messages = [...this.messages, userMsg];
+
+    // 2) Limpiar textarea
+    this.newQuestion = '';
+
+    // 3) Llamar al backend:
+    //    - Si hay currentSessionId → se usa para seguir el hilo
+    //    - Si NO hay → el backend crea una nueva sesión
+    this.chat.askAssistant(text, currentSessionId).subscribe({
+      next: (res: AskAssistantResponse) => {
+        // 4) Si NO había sesión seleccionada, creamos una en el front
+        if (!currentSessionId) {
+          const newSession: ChatSessionSummary = {
+            id: res.sessionId,
+            title: text.slice(0, 120),
+            channel: 'web',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+
+          // La metemos al inicio de la lista y la seleccionamos
+          this.sessions = [newSession, ...this.sessions];
+          this.selectedSession = newSession;
+        } else {
+          // Si ya existía sesión, actualizamos su updatedAt en memoria
+          this.sessions = this.sessions.map((s) =>
+            s.id === currentSessionId ? { ...s, updatedAt: new Date().toISOString() } : s
+          );
+        }
+
+        // 5) Añadir respuesta del asistente al hilo
+        const assistantMsg: ChatMessage = {
+          id: Date.now() + 1,
+          role: 'assistant',
+          model: res.model,
+          tokensIn: null,
+          tokensOut: null,
+          content: res.answer,
+          createdAt: new Date().toISOString(),
+        };
+
+        this.messages = [...this.messages, assistantMsg];
+
+        // 6) Scroll al final si tienes el método
+        this.scrollToBottom?.();
+      },
+      error: (err: unknown) => {
+        console.error('Error enviando mensaje', err);
+        // Podrías mostrar un alert o toast si quieres
+      },
+      complete: () => {
+        this.sending = false;
+      },
+    });
+  }
+
+  // =========================
+  //  Utilidades UI
+  // =========================
+
+  private scrollToBottom(): void {
+    if (!this.messagesContainer) return;
+
+    setTimeout(() => {
+      const el = this.messagesContainer?.nativeElement;
+      if (!el) return;
+
+      el.scrollTo({
+        top: el.scrollHeight,
+        behavior: 'smooth',
+      });
+    }, 0);
+  }
+}

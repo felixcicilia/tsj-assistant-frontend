@@ -1,0 +1,155 @@
+<!-- src/chat/chat.component.html -->
+<div class="tsj-chat container-fluid py-3">
+  <div class="row h-100">
+    <!-- ▓▓ Sidebar: sesiones ▓▓ -->
+    <div class="col-12 col-lg-3 mb-3 mb-lg-0">
+      <div class="card shadow-sm h-100 d-flex flex-column">
+        <div class="card-header bg-white border-0">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="mb-0 fw-semibold">Sesiones</h6>
+              <small class="text-muted">Historial de consultas</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-top"></div>
+
+        <div class="flex-grow-1 overflow-auto">
+          <div class="list-group list-group-flush chat-sessions">
+            <button
+              type="button"
+              class="list-group-item list-group-item-action border-0 border-bottom"
+              *ngFor="let s of sessions"
+              (click)="selectSession(s)"
+              [class.active]="selectedSession && selectedSession.id === s.id"
+            >
+              <div class="d-flex flex-column text-start">
+                <span class="fw-semibold text-truncate">
+                  {{ s.title }}
+                </span>
+                <small class="text-muted">
+                  {{ s.createdAt | date : 'short' }}
+                </small>
+              </div>
+            </button>
+
+            <div class="p-3 text-muted small" *ngIf="sessions.length === 0">
+              No hay sesiones registradas todavía.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ▓▓ Panel principal de chat ▓▓ -->
+    <div class="col-12 col-lg-9">
+      <div class="card shadow-sm h-100 d-flex flex-column chat-card">
+        <!-- Header -->
+        <div
+          class="card-header bg-white border-0 d-flex justify-content-between align-items-center flex-wrap gap-2"
+        >
+          <div>
+            <h5 class="mb-0">
+              {{ selectedSession ? selectedSession.title : 'Asistente jurídico TSJ' }}
+            </h5>
+            <small class="text-muted" *ngIf="selectedSession">
+              Canal: {{ selectedSession.channel }} • Creada:
+              {{ selectedSession.createdAt | date : 'short' }}
+            </small>
+            <small class="text-muted" *ngIf="!selectedSession">
+              Seleccione una sesión a la izquierda o envíe una nueva consulta.
+            </small>
+          </div>
+        </div>
+
+        <div class="border-top"></div>
+
+        <!-- Mensajes (scrollable) -->
+        <div class="card-body chat-messages flex-grow-1 overflow-auto">
+          <!-- Mensajes de la sesión seleccionada -->
+          <div *ngIf="selectedSession; else noSessionTpl">
+            <div
+              *ngFor="let msg of messages; trackBy: trackByMsgId"
+              class="mb-3 d-flex"
+              [ngClass]="{
+                'justify-content-end': isUser(msg),
+                'justify-content-start': isAssistant(msg)
+              }"
+            >
+              <div
+                class="chat-bubble px-3 py-2 rounded-3"
+                [ngClass]="{
+                  'chat-bubble-user': isUser(msg),
+                  'chat-bubble-assistant': isAssistant(msg)
+                }"
+              >
+                <div class="d-flex justify-content-between mb-1 small">
+                  <span class="fw-semibold">
+                    {{ msg.role === 'user' ? 'Usted' : 'Asistente TSJ' }}
+                  </span>
+                  <span class="text-muted">
+                    {{ msg.createdAt | date : 'shortTime' }}
+                  </span>
+                </div>
+                <div class="chat-content">
+                  {{ msg.content }}
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="messages.length === 0" class="text-muted text-center mt-4 small">
+              Esta sesión aún no tiene mensajes.
+            </div>
+          </div>
+
+          <!-- Template: sin sesión seleccionada -->
+          <ng-template #noSessionTpl>
+            <div
+              class="h-100 d-flex flex-column justify-content-center align-items-center text-muted text-center px-3"
+            >
+              <h6 class="fw-semibold mb-2">Bienvenido al asistente jurídico TSJ</h6>
+              <p class="mb-0 small">
+                Seleccione una sesión en el panel izquierdo o envíe una nueva consulta usando el
+                formulario de abajo.
+              </p>
+            </div>
+          </ng-template>
+        </div>
+
+        <div class="border-top"></div>
+
+        <!-- Caja para nueva pregunta -->
+        <div class="card-footer bg-light">
+          <form (ngSubmit)="sendMessage()" class="row g-2 align-items-end">
+            <div class="col-12">
+              <label class="form-label fw-semibold mb-1">
+                Nueva consulta al asistente jurídico
+              </label>
+              <textarea
+                class="form-control"
+                rows="3"
+                [(ngModel)]="newQuestion"
+                name="question"
+                placeholder="Escriba aquí su pregunta sobre el caso, audiencia o artículos del COPP..."
+              ></textarea>
+            </div>
+            <div class="col-12 d-flex justify-content-end">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="!newQuestion.trim() || sending"
+              >
+                <span class="spinner-border spinner-border-sm me-1" *ngIf="sending"></span>
+                Enviar consulta
+              </button>
+            </div>
+          </form>
+          <div class="small text-muted mt-2">
+            Cada consulta se guarda en el historial y puede revisarse desde el panel izquierdo.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
