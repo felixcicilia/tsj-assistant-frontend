@@ -1,2 +1,18 @@
-<app-login></app-login>
-<app-chat></app-chat>
+<div class="app-shell">
+
+  <h1 class="app-title">TSJ Assistant</h1>
+  <p class="app-subtitle">
+    Inicie sesión con su usuario del sistema para acceder al asistente jurídico.
+  </p>
+
+  <!-- Si NO está logueado -->
+  <ng-container *ngIf="!auth.isLoggedIn(); else chatView">
+    <app-login></app-login>
+  </ng-container>
+
+  <!-- Si ESTÁ logueado -->
+  <ng-template #chatView>
+    <app-chat></app-chat>
+  </ng-template>
+
+</div>
