@@ -11,5 +11,10 @@ import { AuthService } from './auth/auth.service';
   templateUrl: './app.html',
 })
 export class App {
+
   constructor(public auth: AuthService) {}
+
+  onLogout() {
+    this.auth.logout();
+  }
 }

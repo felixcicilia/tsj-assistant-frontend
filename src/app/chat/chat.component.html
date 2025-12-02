@@ -1,155 +1,140 @@
-<!-- src/chat/chat.component.html -->
-<div class="tsj-chat container-fluid py-3">
-  <div class="row h-100 g-3">
+<!-- src/app/chat/chat.component.html -->
+<div class="tsj-chat container-lg py-4">
+  <div class="tsj-chat-layout">
     <!-- ▓▓ Sidebar (historial) ▓▓ -->
-    <div class="col-12 col-lg-3">
-      <div class="tsj-sidebar card shadow-sm h-100 d-flex flex-column">
-        <div class="tsj-sidebar-header card-header border-0">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h6 class="mb-0 fw-semibold">Sesiones</h6>
-              <small class="text-muted d-block">Historial de consultas</small>
-            </div>
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-light tsj-new-session-btn"
-              (click)="startNewSession()"
-            >
-              + Nueva
-            </button>
-          </div>
+    <aside class="tsj-sidebar">
+      <header class="tsj-sidebar-header">
+        <div>
+          <p class="tsj-sidebar-kicker">Historial</p>
+          <h2 class="tsj-sidebar-title">Sesiones</h2>
+          <p class="tsj-sidebar-subtitle">Revise sus consultas previas o inicie una nueva.</p>
         </div>
 
-        <div class="tsj-sidebar-body flex-grow-1 overflow-auto">
-          <div
-            *ngFor="let s of sessions; trackBy: trackBySessionId"
-            class="tsj-session-item"
-            [class.active]="selectedSession && selectedSession.id === s.id"
-            (click)="selectSession(s)"
-          >
-            <div class="tsj-session-title text-truncate">
-              {{ s.title || 'Consulta sin título' }}
-            </div>
-            <div class="tsj-session-meta">
-              {{ s.createdAt | date : 'short' }}
-            </div>
-          </div>
+        <button type="button" class="btn btn-sm tsj-sidebar-new" (click)="startNewSession()">
+          <span class="me-1">+</span> Nueva sesión
+        </button>
+      </header>
 
-          <div class="text-muted small text-center py-3" *ngIf="sessions.length === 0">
-            No hay sesiones registradas todavía.
-          </div>
+      <div class="tsj-sidebar-list">
+        <button
+          *ngFor="let s of sessions; trackBy: trackBySessionId"
+          type="button"
+          class="tsj-session-item"
+          [class.tsj-session-item--active]="selectedSession && selectedSession.id === s.id"
+          (click)="selectSession(s)"
+        >
+          <span class="tsj-session-title text-truncate">
+            {{ s.title || 'Consulta sin título' }}
+          </span>
+          <span class="tsj-session-meta">
+            {{ s.createdAt | date : 'short' }}
+          </span>
+        </button>
+
+        <div class="tsj-sidebar-empty" *ngIf="sessions.length === 0">
+          <p class="mb-1 fw-semibold">Sin sesiones registradas</p>
+          <p class="mb-0">
+            Cree su primera consulta usando el botón
+            <strong>“Nueva sesión”</strong>.
+          </p>
         </div>
       </div>
-    </div>
+    </aside>
 
-    <!-- ▓▓ Panel principal de chat ▓▓ -->
-    <div class="col-12 col-lg-9">
-      <div class="tsj-main card shadow-sm h-100 d-flex flex-column">
-        <!-- Header -->
-        <div
-          class="card-header bg-white border-0 d-flex justify-content-between align-items-center flex-wrap gap-2"
-        >
-          <div>
-            <h5 class="mb-0">
-              {{ selectedSession ? selectedSession.title : 'Asistente jurídico TSJ' }}
-            </h5>
-            <small class="text-muted" *ngIf="selectedSession">
-              Canal: {{ selectedSession.channel }} • Creada:
-              {{ selectedSession.createdAt | date : 'short' }}
-            </small>
-            <small class="text-muted" *ngIf="!selectedSession">
-              Cree una nueva consulta o seleccione una sesión del historial.
-            </small>
+    <!-- ▓▓ Panel principal ▓▓ -->
+    <main class="tsj-main">
+      <!-- Header -->
+      <header class="tsj-main-header">
+        <div>
+          <h1 class="tsj-main-title">
+            {{
+              selectedSession
+                ? selectedSession.title || 'Consulta en curso'
+                : 'Asistente jurídico TSJ'
+            }}
+          </h1>
+          <p class="tsj-main-subtitle" *ngIf="selectedSession">
+            Canal: {{ selectedSession.channel }} • Creada:
+            {{ selectedSession.createdAt | date : 'short' }}
+          </p>
+          <p class="tsj-main-subtitle" *ngIf="!selectedSession">
+            Inicie una nueva consulta o seleccione una sesión del historial.
+          </p>
+        </div>
+      </header>
+
+      <!-- Mensajes -->
+      <section class="tsj-main-messages">
+        <!-- Estado vacío -->
+        <div class="tsj-main-empty" *ngIf="!selectedSession">
+          <div class="tsj-main-empty-inner">
+            <h2 class="mb-2">Bienvenido al asistente jurídico</h2>
+            <p class="mb-0">
+              Use la caja de texto inferior para plantear su primera pregunta o seleccione una
+              sesión previa en el panel izquierdo.
+            </p>
           </div>
         </div>
 
-        <div class="border-top"></div>
-
-        <!-- Mensajes -->
-        <div class="tsj-messages card-body flex-grow-1 overflow-auto">
-          <!-- Cuando NO hay sesión -->
-          <ng-container *ngIf="!selectedSession">
-            <div
-              class="h-100 d-flex flex-column justify-content-center align-items-center text-muted text-center px-4"
-            >
-              <h6 class="fw-semibold mb-2">Bienvenido al asistente jurídico TSJ</h6>
-              <p class="small mb-0">
-                Inicie una nueva consulta con la caja de texto de abajo o seleccione una sesión
-                previa en el panel izquierdo.
-              </p>
-            </div>
-          </ng-container>
-
-          <!-- Cuando sí hay sesión -->
-          <ng-container *ngIf="selectedSession">
-            <div
-              *ngFor="let msg of messages; trackBy: trackByMsgId"
-              class="tsj-message-row"
-              [ngClass]="{
-                'justify-content-end': isUser(msg),
-                'justify-content-start': isAssistant(msg)
-              }"
-            >
-              <div
-                class="tsj-bubble"
-                [ngClass]="{
-                  'tsj-bubble-user': isUser(msg),
-                  'tsj-bubble-assistant': isAssistant(msg)
-                }"
-              >
-                <div class="tsj-bubble-meta">
-                  <span class="tsj-bubble-role">
-                    {{ msg.role === 'user' ? 'Usted' : 'Asistente TSJ' }}
-                  </span>
-                  <span class="tsj-bubble-time">
-                    {{ msg.createdAt | date : 'shortTime' }}
-                  </span>
-                </div>
-                <div class="tsj-bubble-content">
-                  {{ msg.content }}
-                </div>
+        <!-- Mensajes de la sesión -->
+        <div *ngIf="selectedSession">
+          <div
+            *ngFor="let msg of messages; trackBy: trackByMsgId"
+            class="tsj-message"
+            [ngClass]="{
+              'tsj-message--user': isUser(msg),
+              'tsj-message--assistant': isAssistant(msg)
+            }"
+          >
+            <div class="tsj-message-bubble">
+              <div class="tsj-message-header">
+                <span class="tsj-message-author">
+                  {{ msg.role === 'user' ? 'Usted' : 'Asistente TSJ' }}
+                </span>
+                <span class="tsj-message-time">
+                  {{ msg.createdAt | date : 'shortTime' }}
+                </span>
+              </div>
+              <div class="tsj-message-content">
+                {{ msg.content }}
               </div>
             </div>
-
-            <div *ngIf="messages.length === 0" class="text-muted text-center mt-4 small">
-              Esta sesión aún no tiene mensajes.
-            </div>
-          </ng-container>
-        </div>
-
-        <div class="border-top"></div>
-
-        <!-- Caja de nueva consulta -->
-        <div class="card-footer bg-light">
-          <form (ngSubmit)="sendMessage()" class="row g-2 align-items-end">
-            <div class="col-12">
-              <label class="form-label fw-semibold mb-1">
-                Nueva consulta al asistente jurídico
-              </label>
-              <textarea
-                class="form-control tsj-textarea"
-                rows="3"
-                [(ngModel)]="newQuestion"
-                name="question"
-                placeholder="Escriba aquí su pregunta sobre el caso, audiencia o artículos del COPP..."
-              ></textarea>
-            </div>
-            <div class="col-12 d-flex justify-content-end">
-              <button
-                type="submit"
-                class="btn btn-primary tsj-send-btn"
-                [disabled]="!newQuestion.trim() || sending"
-              >
-                <span class="spinner-border spinner-border-sm me-1" *ngIf="sending"></span>
-                Enviar consulta
-              </button>
-            </div>
-          </form>
-          <div class="small text-muted mt-2">
-            Cada consulta se guarda en el historial y puede revisarse desde el panel izquierdo.
           </div>
+
+          <p class="tsj-main-no-messages" *ngIf="messages.length === 0">
+            Esta sesión aún no tiene mensajes registrados.
+          </p>
         </div>
-      </div>
-    </div>
+      </section>
+
+      <!-- Entrada de texto -->
+      <footer class="tsj-main-input">
+        <form (ngSubmit)="sendMessage()">
+          <label class="tsj-input-label"> Nueva consulta al asistente </label>
+          <textarea
+            class="form-control tsj-input-area"
+            rows="3"
+            [(ngModel)]="newQuestion"
+            name="question"
+            placeholder="Describa su consulta: fase procesal, tipo de audiencia, artículo o situación concreta…"
+          ></textarea>
+
+          <div class="tsj-input-actions">
+            <small class="text-muted">
+              Las respuestas son orientativas y no sustituyen el criterio jurídico del operador.
+            </small>
+
+            <button
+              type="submit"
+              class="btn tsj-submit-btn"
+              [disabled]="!newQuestion?.trim() || sending"
+            >
+              <span class="spinner-border spinner-border-sm me-2" *ngIf="sending"></span>
+              Enviar consulta
+            </button>
+          </div>
+        </form>
+      </footer>
+    </main>
   </div>
 </div>
