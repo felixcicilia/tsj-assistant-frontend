@@ -1,43 +1,27 @@
 <!-- src/app.html -->
 <div class="tsj-shell">
-  <div class="tsj-shell-inner container-fluid px-3 px-lg-5 py-3 py-lg-4">
-    <!-- HEADER -->
-    <header
-      class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-3 gap-3"
-    >
-      <div>
-        <p class="tsj-header-kicker mb-1">SISTEMA INTERNO PNB</p>
-        <h1 class="tsj-header-title">PNB Assistant</h1>
-        <p class="tsj-header-subtitle mb-0">
-          Bienvenido, {{ auth.currentUser?.name || 'usuario' }}. Puede continuar sus consultas con
-          el asistente Policial.
-        </p>
-      </div>
+  <div class="tsj-shell-inner container-fluid px-3 px-lg-5">
+    <header class="tsj-topbar">
+  <div class="tsj-topbar-left">
+    <span class="tsj-app-name">PNB Assistant </span>
+  </div>
 
-      <!-- bloque usuario (lo que ya tenías arriba a la derecha) -->
-      <div class="tsj-header-user text-end small" *ngIf="auth.isLoggedIn()">
-        <div class="fw-semibold text-dark">
-          {{ auth.currentUser?.name || 'Admin TSJ' }}
-        </div>
-        <div class="text-muted">
-          {{ auth.currentUser?.email || 'admin@tsj.test' }}
-        </div>
-        <div class="text-muted">ADMIN</div>
+  <div class="tsj-topbar-right" *ngIf="auth.isLoggedIn()">
+    <span class="tsj-user-email">{{ auth.currentUser?.email }}</span>
 
-        <button class="btn btn-outline-secondary btn-sm mt-2" (click)="auth.logout()">
-          Cerrar sesión
-        </button>
-      </div>
-    </header>
-
+    <button class="tsj-logout-btn" (click)="auth.logout()">
+      Cerrar sesión
+    </button>
+  </div>
+</header>
     <!-- MAIN (LOGIN o CHAT) -->
-    <main class="tsj-main-section tsj-shell-main">
+    <main class="tsj-shell-main">
       @if (!auth.isLoggedIn()) {
       <!-- LOGIN -->
       <section class="tsj-main-login d-flex align-items-center justify-content-center w-100">
         <div class="row justify-content-center w-100">
-          <div class="col-lg-6 col-md-8">
-            <div class="card border-0 shadow-sm p-4">
+          <div class="col-lg-5 col-md-7 col-sm-10">
+            <div class="card tsj-login-card border-0 p-4">
               <h5 class="fw-semibold mb-2">Acceso al asistente jurídico</h5>
               <p class="text-muted small mb-3">
                 Use sus credenciales del sistema interno del TSJ para iniciar sesión.
@@ -49,9 +33,10 @@
         </div>
       </section>
       } @else {
-      <!-- CHAT -->
+      <!-- CHAT: ocupa todo el alto disponible -->
       <app-chat class="w-100"></app-chat>
       }
     </main>
   </div>
+  
 </div>
