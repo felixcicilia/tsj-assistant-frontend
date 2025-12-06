@@ -41,6 +41,8 @@ body {
 
 .tsj-shell {
   min-height: 100vh;
+  background: #202123;
+  color: #e4e6eb;
   display: flex;
 }
 
@@ -48,18 +50,17 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 12px 12px;
+  padding: 0; /* ya haces el padding con container-fluid si quieres */
 }
 
-@media (min-width: 992px) {
-  .tsj-shell-inner {
-    padding: 16px 32px;
-  }
-}
-
-/* main (login o chat) ocupa todo bajo el header */
-.tsj-main-section,
 .tsj-shell-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 🔥 Muy importante: <app-chat> debe ser un flex que se estire */
+.tsj-shell-main app-chat {
   flex: 1;
   display: flex;
 }

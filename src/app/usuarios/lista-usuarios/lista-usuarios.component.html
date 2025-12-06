@@ -1,1 +1,42 @@
-<p>lista-usuarios works!</p>
+<div class="container py-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Users</h1>
+
+    <a routerLink="/usuarios/crear" class="btn btn-success">
+      + Create User
+    </a>
+  </div>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>First name</th>
+        <th>Last name</th>
+        <th>Document</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>State</th>
+        <th>Country</th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let u of users">
+        <td>{{ u.name }}</td>
+        <td>{{ u.lastName }}</td>
+        <td>{{ u.documentId }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.phone }}</td>
+        <td>{{ u.state }}</td>
+        <td>{{ u.country }}</td>
+
+        <td>
+          <a [routerLink]="['/usuarios', u.id]" class="btn btn-sm btn-primary">
+            Edit
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
