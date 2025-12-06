@@ -4,13 +4,17 @@
     <!-- ▓▓ Sidebar (historial) ▓▓ -->
     <aside class="tsj-sidebar">
       <header class="tsj-sidebar-header">
-        <div>
-          <p class="tsj-sidebar-kicker">Historial</p>
-          <h2 class="tsj-sidebar-title">Sesiones</h2>
-          <p class="tsj-sidebar-subtitle">Revise sus consultas previas o inicie una nueva.</p>
+        <div class="tsj-sidebar-title-block">
+          <span class="tsj-sidebar-kicker">HISTORIAL</span>
+          <span class="tsj-sidebar-title">Sesiones</span>
         </div>
 
-        <button type="button" class="btn btn-sm tsj-sidebar-new" (click)="startNewSession()">
+        <button
+          type="button"
+          class="tsj-sidebar-new"
+          (click)="startNewSession()"
+          [disabled]="sending"
+        >
           <span class="me-1">+</span> Nueva sesión
         </button>
       </header>
@@ -19,14 +23,14 @@
         <button
           *ngFor="let s of sessions; trackBy: trackBySessionId"
           type="button"
-          class="tsj-session-item"
-          [class.tsj-session-item--active]="selectedSession && selectedSession.id === s.id"
+          class="tsj-sidebar-item"
+          [class.tsj-sidebar-item--active]="selectedSession && selectedSession.id === s.id"
           (click)="selectSession(s)"
         >
-          <span class="tsj-session-title text-truncate">
+          <span class="tsj-sidebar-item-title text-truncate">
             {{ s.title || 'Consulta sin título' }}
           </span>
-          <span class="tsj-session-meta">
+          <span class="tsj-sidebar-item-meta">
             {{ s.createdAt | date : 'short' }}
           </span>
         </button>
@@ -53,10 +57,12 @@
                 : 'Asistente jurídico TSJ'
             }}
           </h1>
+
           <p class="tsj-main-subtitle" *ngIf="selectedSession">
-            Canal: {{ selectedSession.channel }} • Creada:
+            Canal: {{ selectedSession.channel || 'web' }} • Creada:
             {{ selectedSession.createdAt | date : 'short' }}
           </p>
+
           <p class="tsj-main-subtitle" *ngIf="!selectedSession">
             Inicie una nueva consulta o seleccione una sesión del historial.
           </p>
@@ -65,19 +71,20 @@
 
       <!-- Mensajes -->
       <section class="tsj-main-messages">
-        <!-- Estado vacío -->
+        <!-- Estado vacío (sin sesión seleccionada) -->
         <div class="tsj-main-empty" *ngIf="!selectedSession">
           <div class="tsj-main-empty-inner">
-            <h2 class="mb-2">Bienvenido al asistente jurídico</h2>
-            <p class="mb-0">
-              Use la caja de texto inferior para plantear su primera pregunta o seleccione una
-              sesión previa en el panel izquierdo.
+            <h2 class="tsj-empty-title">Bienvenido al asistente jurídico</h2>
+
+            <p class="tsj-empty-text">
+              Inicie una consulta usando la caja inferior o seleccione una sesión previa en el
+              historial del panel izquierdo.
             </p>
           </div>
         </div>
 
         <!-- Mensajes de la sesión -->
-        <div *ngIf="selectedSession">
+        <div *ngIf="selectedSession" #messagesContainer class="tsj-main-messages-scroll">
           <div
             *ngFor="let msg of messages; trackBy: trackByMsgId"
             class="tsj-message"
@@ -95,6 +102,7 @@
                   {{ msg.createdAt | date : 'shortTime' }}
                 </span>
               </div>
+
               <div class="tsj-message-content">
                 {{ msg.content }}
               </div>
@@ -111,16 +119,19 @@
       <footer class="tsj-main-input">
         <form (ngSubmit)="sendMessage()">
           <label class="tsj-input-label"> Nueva consulta al asistente </label>
+
           <textarea
             class="form-control tsj-input-area"
             rows="3"
             [(ngModel)]="newQuestion"
             name="question"
             placeholder="Describa su consulta: fase procesal, tipo de audiencia, artículo o situación concreta…"
+            [disabled]="sending"
+            (input)="autoResizeTextArea($event)"
           ></textarea>
 
           <div class="tsj-input-actions">
-            <small class="text-muted">
+            <small>
               Las respuestas son orientativas y no sustituyen el criterio jurídico del operador.
             </small>
 
@@ -130,7 +141,7 @@
               [disabled]="!newQuestion?.trim() || sending"
             >
               <span class="spinner-border spinner-border-sm me-2" *ngIf="sending"></span>
-              Enviar consulta
+              {{ sending ? 'Consultando…' : 'Enviar consulta' }}
             </button>
           </div>
         </form>

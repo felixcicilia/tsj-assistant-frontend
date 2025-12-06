@@ -1,61 +1,71 @@
 /* src/app/chat/chat.component.scss */
 
-/* =========================================
-   LAYOUT GENERAL
-   ========================================= */
-
-.tsj-chat-shell {
-  width: 100%;
-  height: 100%;
-  min-height: 0;           /* clave para que los hijos puedan scrollear */
-
+/* El host se estira dentro de <app-chat> */
+:host {
+  flex: 1;
   display: flex;
-  background: #202123;      /* fondo ChatGPT */
+}
+
+/* =========================
+   LAYOUT GENERAL
+   ========================= */
+
+.tsj-chat {
+  flex: 1;
+  height: calc(100vh - 50px); /* 50px ≈ altura del topbar */
+  width: 100%;
+  display: flex;
+  background: #202123; /* fondo ChatGPT dark */
   color: #e4e6eb;
 }
 
-/* sidebar + main uno al lado del otro */
 .tsj-chat-layout {
   flex: 1;
   display: flex;
   flex-direction: row;
-  min-height: 0;            /* importante para el scroll interno */
+  min-height: 0; /* permite scroll interno */
 }
 
-/* =========================================
-   SIDEBAR
-   ========================================= */
+/* =========================
+   SIDEBAR (HISTORIAL)
+   ========================= */
+
+  /* ELIMINAR fondo blanco heredado dentro del sidebar */
+.tsj-sidebar,
+.tsj-sidebar * {
+  background: transparent !important;
+  box-shadow: none !important;
+}
 
 .tsj-sidebar {
-  flex: 0 0 260px;          /* ancho fijo tipo ChatGPT */
+  flex: 0 0 260px; /* ancho fijo tipo ChatGPT */
   display: flex;
   flex-direction: column;
-  min-height: 0;            /* permite que .tsj-sidebar-list tenga scroll */
+  min-height: 0;
 
   background: #171717;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 14px 10px;
+  padding: 12px 10px;
 }
 
-/* header del sidebar */
+/* header lateral */
 .tsj-sidebar-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .tsj-sidebar-kicker {
   font-size: 11px;
-  text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #9ca3af;
+  color: #ffffff;
   margin-bottom: 2px;
 }
 
 .tsj-sidebar-title {
-  font-size: 16px;
+  font-size: 14px;
   margin: 0;
 }
 
@@ -65,32 +75,27 @@
   color: #9ca3af;
 }
 
-/* botón Nueva */
+/* botón "Nueva sesión" */
 .tsj-sidebar-new {
-  border-radius: 999px;
-  background: #22c55e;
-  border: none;
-  color: #020617;
-  font-weight: 600;
-  padding: 4px 12px;
-  white-space: nowrap;
+  border-radius: 5px;
+  border: 1px solid #565869;
+  background: #202123;
+  color: #e4e6eb;
   font-size: 12px;
+  padding: 4px 10px;
+  white-space: nowrap;
 }
 
-.tsj-sidebar-new:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* lista de sesiones: AQUÍ va el scroll del sidebar */
+/* lista con SCROLL interno */
 .tsj-sidebar-list {
-  margin-top: 10px;
+  margin-top: 8px;
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding-right: 4px;
 }
 
-/* Estilo del scrollbar del sidebar */
+/* scrollbar fino solo en el sidebar */
 .tsj-sidebar-list {
   scrollbar-width: thin;
   scrollbar-color: #565869 transparent;
@@ -105,80 +110,219 @@
   background: #565869;
 }
 
-/* items */
+/* items de sesión */
 .tsj-sidebar-item {
   width: 100%;
   text-align: left;
   background: transparent;
   border: 1px solid transparent;
   color: #e5e7eb;
-  border-radius: 8px;
-  padding: 8px 8px;
+  border-radius: 6px;
+  padding: 6px 8px;
   margin-bottom: 4px;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
   font-size: 13px;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .tsj-sidebar-item:hover {
   background: #2f2f2f;
-  border-color: rgba(148, 163, 184, 0.5);
+  border-color: #565869;
 }
 
 .tsj-sidebar-item--active {
   background: #343541;
-  border-color: #22c55e;
+  border-color: #0e3574;
 }
 
 .tsj-sidebar-item-title {
   font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
-  text-overflow: ellipsis;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tsj-sidebar-item-meta {
-  margin-top: 2px;
   font-size: 11px;
   color: #9ca3af;
-  display: flex;
-  align-items: center;
-  gap: 4px;
 }
 
 .tsj-sidebar-empty {
   font-size: 12px;
   color: #9ca3af;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 /* =========================================
-   MAIN (PANEL DEL CHAT)
+   SIDEBAR ESTILO CHATGPT (override final)
    ========================================= */
+
+.tsj-sidebar {
+  width: 260px;                       /* ancho tipo ChatGPT */
+  max-width: 280px;
+  background: #111111;
+  border-right: 1px solid #27272a;
+
+  padding: 8px 10px 12px;
+  display: flex;
+  flex-direction: column;
+
+  /* que llegue de arriba a abajo */
+  height: 100%;
+}
+
+/* --- Header del sidebar --- */
+
+.tsj-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 4px 8px;
+  border-radius: 6px;
+}
+
+.tsj-sidebar-kicker {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: #ffffff;
+  margin: 0 0 2px;
+}
+
+.tsj-sidebar-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+  color: #ffffff;
+}
+
+.tsj-sidebar-subtitle {
+  font-size: 11px;
+  margin: 0;
+  color: #9ca3af;
+}
+
+/* Botón “Nueva sesión” tipo pastilla */
+
+.tsj-sidebar-new {
+  border-radius: 5px;
+  border: 1px solid #3f3f46;
+  background: #202123;
+  color: #e5e7eb;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.tsj-sidebar-new:hover:not(:disabled) {
+  background: #343541;
+  border-color: #52525b;
+}
+
+/* --- Lista de sesiones --- */
+
+.tsj-sidebar-list {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #27272a;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* scroll fino como ChatGPT */
+.tsj-sidebar-list::-webkit-scrollbar {
+  width: 6px;
+}
+.tsj-sidebar-list::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 999px;
+}
+
+/* Cada item de sesión */
+
+.tsj-session-item {
+  width: 100%;
+  text-align: left;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #e5e7eb;
+
+  padding: 8px 10px;
+  margin-bottom: 4px;
+
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    transform 0.04s ease;
+}
+
+.tsj-session-title {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tsj-session-meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+/* hover suave */
+.tsj-session-item:hover:not(.tsj-session-item--active) {
+  background: #202123;
+  border-color: #3f3f46;
+}
+
+/* sesión activa tipo “seleccionada” */
+.tsj-session-item--active {
+  background: #202123;
+  border-color: #4ade80;
+  box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.25);
+}
+
+/* Mensaje vacío */
+.tsj-sidebar-empty {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #18181b;
+  border: 1px dashed #3f3f46;
+  font-size: 11px;
+  color: #a1a1aa;
+}
+
+/* --- Responsive: en pantallas muy pequeñas
+       dejamos el ancho fijo pero que no se coma todo --- */
+@media (max-width: 900px) {
+  .tsj-sidebar {
+    width: 230px;
+  }
+}
+
+/* =========================
+   MAIN (PANEL DEL CHAT)
+   ========================= */
 
 .tsj-main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;            /* muy importante */
-
-  background: #343541;      /* gris ChatGPT */
-}
-
-/* header de la sesión */
-.tsj-main-header {
-  padding: 12px 20px 8px;
-  border-bottom: 1px solid #2f2f2f;
+  min-height: 0;
   background: #343541;
 }
 
-.tsj-main-kicker {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: #9ca3af;
-  margin-bottom: 2px;
+.tsj-main-header {
+  padding: 10px 18px 8px;
+  border-bottom: 1px solid #2f2f2f;
 }
 
 .tsj-main-title {
@@ -192,65 +336,60 @@
   color: #9ca3af;
 }
 
-/* =========================================
-   MENSAJES (ÁREA SCROLL)
-   ========================================= */
+/* =========================
+   MENSAJES
+   ========================= */
 
 .tsj-main-messages {
   flex: 1;
-  min-height: 0;          /* permite scroll interno */
-  position: relative;
+  min-height: 0;
   display: flex;
 }
 
+/* estado vacío centrado */
+.tsj-main-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tsj-main-empty-inner {
+  max-width: 460px;
+  text-align: center;
+  padding: 16px 12px;
+}
+
+.tsj-main-empty-inner h2 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.tsj-main-empty-inner p {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+/* 🔥 contenedor con scroll para mensajes (messagesContainer) */
 .tsj-main-messages-scroll {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: 20px 24px;
+
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 /* fila de mensaje */
 .tsj-message {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
-}
-
-.tsj-message--user {
-  justify-content: flex-end;
-}
-
-.tsj-message--assistant {
-  justify-content: flex-start;
-}
-
-/* avatar */
-.tsj-message-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  background: #202123;
-  border: 1px solid #22c55e;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  color: #bbf7d0;
-  flex-shrink: 0;
-}
-
-.tsj-message-avatar--user {
-  border-color: #3b82f6;
-  color: #bfdbfe;
 }
 
 /* burbuja */
 .tsj-message-bubble {
-  max-width: 90%;
+  max-width: 80%;
   border-radius: 8px;
   padding: 8px 10px;
   font-size: 13px;
@@ -263,49 +402,48 @@
 }
 
 /* usuario verde */
-.tsj-message--user .tsj-message-bubble {
-  margin-left: auto;
-  background: #10a37f;
-  color: #f9fafb;
-}
-
-/* avatar del usuario a la derecha */
-.tsj-message--user .tsj-message-avatar {
-  order: 2;
+.tsj-message--user {
+  justify-content: flex-end;
 }
 
 .tsj-message--user .tsj-message-bubble {
-  order: 1;
+  background: #0e3574;
+  color: #ffffff;
 }
 
-/* meta del mensaje */
-.tsj-message-meta {
-  font-size: 11px;
-  color: #9ca3af;
-  margin-bottom: 4px;
+.tsj-message-header {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4px;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
 }
 
-.tsj-message-role {
+.tsj-message-author {
+  font-size: 11px;
   font-weight: 600;
 }
 
+.tsj-message-time {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
 .tsj-message-content {
-  font-size: 13px;
-  line-height: 1.5;
   white-space: pre-wrap;
 }
 
-/* =========================================
+.tsj-main-no-messages {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* =========================
    INPUT ABAJO
-   ========================================= */
+   ========================= */
 
 .tsj-main-input {
-  padding: 12px 20px 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 18px 14px;
+  border-top: 1px solid #2f2f2f;
   background: #343541;
 }
 
@@ -313,46 +451,49 @@
   font-size: 12px;
   color: #9ca3af;
   margin-bottom: 4px;
-  display: block;
 }
 
-.tsj-input-row {
-  display: flex;
-  gap: 8px;
-  align-items: flex-end;
-}
-
-.tsj-input-textarea {
-  flex: 1;
-  background: #40414f;
-  border-radius: 8px;
-  border: 1px solid #565869;
-  color: #e5e7eb;
+/* textarea */
+.tsj-input-area {
+  background: #40414f !important;
+  border-radius: 8px !important;
+  border: 1px solid #565869 !important;
+  color: #e5e7eb !important;
   font-size: 13px;
   resize: vertical;
-  min-height: 60px;
-  max-height: 160px;
-  padding: 8px 10px;
 }
 
-.tsj-input-textarea::placeholder {
+.tsj-input-area::placeholder {
   color: #9ca3af;
 }
 
-.tsj-input-textarea:focus {
-  border-color: #22c55e;
-  box-shadow: 0 0 0 1px #22c55e33;
+.tsj-input-area:focus {
+  border-color: #0e3574 !important;
+  box-shadow: 0 0 0 1px #0e357466 !important;
 }
 
-/* botón enviar */
+/* helper + botón */
+.tsj-input-actions {
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.tsj-input-actions small {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
 .tsj-submit-btn {
   border-radius: 999px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 8px 16px;
-  background: linear-gradient(135deg, #22c55e, #4ade80);
+  background: #0e3574;
   border: none;
-  color: #052e16;
+  color: #ffffff;
 }
 
 .tsj-submit-btn:disabled {
@@ -360,74 +501,9 @@
   cursor: not-allowed;
 }
 
-.tsj-input-helper {
-  margin: 6px 2px 0;
-  font-size: 11px;
-  color: #6b7280;
-}
-
-/* =========================================
-   ESTADOS / UTILIDADES
-   ========================================= */
-
-.tsj-main-no-messages {
-  padding: 24px;
-  text-align: center;
-  font-size: 13px;
-  color: #9ca3af;
-}
-
-.tsj-loading {
-  font-size: 12px;
-  color: #9ca3af;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 8px;
-}
-
-.tsj-loading--center {
-  justify-content: center;
-}
-
-.dot-separator {
-  display: inline-block;
-}
-
-/* pantalla “¿Qué tienes en mente hoy?” */
-.tsj-empty-screen {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #e6e6e6;
-  gap: 24px;
-  text-align: center;
-}
-
-.tsj-empty-screen h1 {
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.tsj-empty-input-wrapper {
-  width: min(600px, 100%);
-}
-
-.tsj-empty-input {
-  width: 100%;
-  padding: 14px 18px;
-  background: #40414f;
-  border: 1px solid #565869;
-  border-radius: 999px;
-  color: #fff;
-  font-size: 15px;
-}
-
-/* =========================================
+/* =========================
    RESPONSIVE
-   ========================================= */
+   ========================= */
 
 @media (max-width: 992px) {
   .tsj-chat-layout {
@@ -445,3 +521,696 @@
     flex: 1;
   }
 }
+
+/* ============================================
+   🎨 TUNING VISUAL TIPO CHATGPT (OVERRIDES v2)
+   (pegar al FINAL de chat.component.scss)
+   ============================================ */
+
+/* Fondo global del chat + padding hacia los lados */
+.tsj-chat {
+  background: #202123;
+  padding: 0 16px 16px;
+  box-sizing: border-box;
+}
+
+/* Contenedor central ancho tipo ChatGPT */
+.tsj-chat-layout {
+  max-width: 1200px;   /* ancho máximo de todo el chat */
+  margin: 0 auto;      /* centrado */
+}
+
+/* ========= SIDEBAR ========= */
+
+.tsj-sidebar {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: #171717;
+  border-right: none;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.tsj-sidebar-header {
+  margin-bottom: 10px;
+}
+
+.tsj-sidebar-kicker {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+
+.tsj-sidebar-title {
+  font-size: 14px;
+}
+
+.tsj-sidebar-subtitle {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* botón "Nueva sesión" tipo pastilla discreta */
+.tsj-sidebar-new {
+  border-radius: 5px;
+  border: 1px solid #565869;
+  background: #202123;
+  color: #e4e6eb;
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+/* lista scrollable ya la tienes, solo afinamos el look */
+.tsj-sidebar-item {
+  font-size: 13px;
+  padding: 6px 8px;
+}
+
+.tsj-sidebar-item:hover {
+  background: #2f2f2f;
+  border-color: #565869;
+}
+
+.tsj-sidebar-item--active {
+  background: #343541;
+  border-color: #0e3574;
+}
+
+.tsj-sidebar-item-title {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.tsj-sidebar-item-meta {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+/* ========= PANEL PRINCIPAL ========= */
+
+.tsj-main {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: #343541;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+/* Header de la sesión, sin barras blancas */
+.tsj-main-header {
+  background: #343541 !important;
+  border-bottom: 1px solid #3e3f4b;
+  padding: 12px 24px 10px;
+}
+
+.tsj-main-title {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tsj-main-subtitle {
+  font-size: 12px;
+  margin-top: 4px;
+  color: #9ca3af;
+}
+
+/* ========= MENSAJES ========= */
+
+/* columna central para mensajes */
+.tsj-main-messages {
+  padding: 0 24px 0;
+}
+
+.tsj-main-empty,
+.tsj-main-messages-scroll {
+  max-width: 840px;     /* como ChatGPT */
+  margin: 0 auto;
+}
+
+/* estado vacío */
+.tsj-main-empty-inner h2 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.tsj-main-empty-inner p {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+/* scroll de mensajes */
+.tsj-main-messages-scroll {
+  padding: 18px 0 24px;
+}
+
+/* cada mensaje ocupa el ancho de la columna, no de toda la pantalla */
+.tsj-message {
+  width: 100%;
+}
+
+/* burbuja */
+.tsj-message-bubble {
+  max-width: 100%;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* asistente = gris oscuro */
+.tsj-message--assistant .tsj-message-bubble {
+  background: #444654;
+  color: #e5e7eb;
+}
+
+/* usuario = verde a la derecha */
+.tsj-message--user {
+  justify-content: flex-end;
+}
+
+.tsj-message--user .tsj-message-bubble {
+  background: #0e3574;
+  color: #ffffff;
+}
+
+/* header del mensaje (nombre + hora) más discreto */
+.tsj-message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 3px;
+}
+
+.tsj-message-author {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tsj-message-time {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.tsj-main-no-messages {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* ========= INPUT ABAJO ========= */
+
+.tsj-main-input {
+  border-top: 1px solid #3e3f4b;
+  padding: 10px 24px 16px;
+}
+
+/* misma columna central */
+.tsj-main-input > form {
+  max-width: 840px;
+  margin: 0 auto;
+}
+
+.tsj-input-label {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+
+/* textarea tipo ChatGPT */
+.tsj-input-area {
+  background: #40414f !important;
+  border-radius: 12px !important;
+  border: 1px solid #565869 !important;
+  color: #e5e7eb !important;
+  font-size: 13px;
+}
+
+.tsj-input-area::placeholder {
+  color: #9ca3af;
+}
+
+.tsj-input-area:focus {
+  border-color: #0e3574 !important;
+  box-shadow: 0 0 0 1px #0e357466 !important;
+}
+
+/* texto de ayuda + botón */
+.tsj-input-actions {
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.tsj-input-actions small {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.tsj-submit-btn {
+  border-radius: 999px;
+  padding: 8px 18px;
+  background: #0e3574;
+  border: none;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.tsj-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ========= RESPONSIVE ========= */
+
+@media (max-width: 992px) {
+  .tsj-chat-layout {
+    max-width: 100%;
+  }
+
+  .tsj-sidebar {
+    margin-bottom: 8px;
+  }
+
+  .tsj-main {
+    margin-top: 0;
+  }
+}
+
+/* ===== AJUSTE DE PROPORCIONES: SIDEBAR MÁS ESTRECHO, CHAT MÁS ANCHO ===== */
+
+/* Sidebar más delgado (tipo ChatGPT) */
+.tsj-sidebar {
+  flex: 0 0 220px;  /* antes 260px */
+}
+
+/* Un pelín más de ancho total para el layout */
+.tsj-chat-layout {
+  max-width: 1280px;  /* antes 1200px */
+}
+
+/* La columna de mensajes un poco más amplia */
+.tsj-main-empty,
+.tsj-main-messages-scroll {
+  max-width: 900px;   /* antes 840px */
+}
+
+/* Y el formulario de input igual de ancho que los mensajes */
+.tsj-main-input > form {
+  max-width: 900px;   /* antes 840px */
+}
+
+/* ============================
+   CONTENEDOR GENERAL DEL CHAT
+   ============================ */
+.tsj-chat {
+  height: calc(100vh - 50px); /* debajo del header */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background: #202123;
+  overflow: hidden;
+}
+
+/* layout centrado */
+.tsj-chat-layout {
+  display: flex;
+  width: 100%;
+  max-width: 1480px; /* como ChatGPT */
+  gap: 0;
+  flex: 1;
+}
+
+/* ============================
+   SIDEBAR ESTRECHO TIPO CHATGPT
+   ============================ */
+.tsj-sidebar {
+  width: 210px;     /* antes 280px */
+  background: #2b2c2d;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.tsj-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+.tsj-sidebar::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+/* --- Header del sidebar más limpio, tipo ChatGPT --- */
+
+.tsj-sidebar-header {
+  padding: 4px 4px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tsj-sidebar-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tsj-sidebar-kicker {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.tsj-sidebar-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+/* ya no usamos .tsj-sidebar-subtitle aquí */
+
+/* items */
+.tsj-session-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #ddd;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.tsj-session-item:hover {
+  background: #3a3b3d;
+}
+
+.tsj-session-item--active {
+  background: #3f6354;
+  border-color: #22c55e;
+}
+
+/* ============================
+      PANEL PRINCIPAL (CHAT)
+   ============================ */
+.tsj-main {
+  flex: 1;
+  background: #202123;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* HEADER del chat */
+.tsj-main-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: #202123;
+}
+
+.tsj-main-title {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Inter", sans-serif !important;
+
+  font-size: 15px;            /* No tan grande → estilo ChatGPT */
+  font-weight: 500;           /* Elegante, no gordo */
+  line-height: 1.35;          /* Mejor lectura */
+  letter-spacing: -0.2px;     /* Sutil: más profesional */
+  color: #f1f5f9;             /* Blanco suave, no #fff */
+  margin: 0;
+  padding: 0;
+
+  white-space: nowrap;        /* No saltos feos */
+  overflow: hidden;
+  text-overflow: ellipsis;    /* ... si es muy largo */
+}
+
+.tsj-main-subtitle {
+  font-size: 12px;
+  color: #a1a1aa;
+}
+
+/* ============================
+       MENSAJES (scroll)
+   ============================ */
+.tsj-main-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tsj-main-messages::-webkit-scrollbar {
+  width: 6px;
+}
+.tsj-main-messages::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+/* burbuja */
+.tsj-message {
+  display: flex;
+  width: 100%;
+}
+
+.tsj-message-bubble {
+  max-width: 80%;
+  background: #2f2f2f;
+  padding: 12px 14px;
+  border-radius: 5px;
+  color: #eee;
+  font-size: 14px;
+}
+
+.tsj-message--user {
+  justify-content: flex-end;
+}
+
+.tsj-message--user .tsj-message-bubble {
+  background: #0e3574;
+  color: #fff;
+}
+
+/* ============================
+      INPUT DEL CHAT
+   ============================ */
+.tsj-main-input {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  background: #202123;
+}
+
+.tsj-input-area {
+  background: #2f2f2f;
+  border: 1px solid #444;
+  border-radius: 5px;
+  color: #e5e7eb;
+  padding: 12px;
+  resize: none;
+}
+
+.tsj-input-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tsj-submit-btn {
+  background: #0e3574;
+  border: none;
+  border-radius: 20px;
+  color: #fff;
+  padding: 8px 20px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ============================
+      RESPONSIVE
+   ============================ */
+@media (max-width: 900px) {
+  .tsj-sidebar {
+    display: none; /* como ChatGPT mobile */
+  }
+}
+
+/* ========= AJUSTE FINAL TIPO CHATGPT ========= */
+
+/* Header: que el contenido vaya en una columna centrada */
+.tsj-main-header {
+  display: flex;
+  justify-content: center;
+}
+
+.tsj-main-header > div {
+  width: 100%;
+  max-width: 900px;   /* ancho de la columna */
+}
+
+/* Área de mensajes: scroll + columna centrada */
+.tsj-main-messages {
+  padding: 24px 0 24px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* El contenedor interno (empty o listado de msgs)
+   se limita a la misma columna que el header */
+.tsj-main-messages > div {
+  width: 100%;
+  max-width: 900px;
+}
+
+/* Burbuja un poquito más ancha pero sin irse a los bordes */
+.tsj-message-bubble {
+  max-width: 92%;
+}
+
+/* Input abajo: misma columna centrada */
+.tsj-main-input {
+  display: flex;
+  justify-content: center;
+}
+
+.tsj-main-input > form {
+  width: 100%;
+  max-width: 900px;
+}
+
+.tsj-input-area {
+  background: #2f2f2f;
+  border: 1px solid #444;
+  border-radius: 5px;
+  color: #e5e7eb;
+
+  /* 💡 claves para que se comporte como ChatGPT */
+  min-height: 56px;
+  max-height: 220px;
+  resize: none;       /* no permitir drag manual, solo auto */
+  overflow-y: hidden; /* el TS lo pone en auto si se pasa del máximo */
+
+  font-size: 13px;
+  padding: 10px 12px;
+}
+
+/* --- Arreglar overflow de títulos en la lista --- */
+
+.tsj-session-item {
+  overflow: hidden;          /* que nada se salga del borde verde */
+}
+
+.tsj-session-title {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;   /* ... cuando es muy largo */
+}
+
+.tsj-session-meta {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Que sidebar y main tengan la MISMA altura --- */
+
+.tsj-chat {
+  height: calc(100vh - 50px);      /* 50px ≈ alto de tu topbar, ajusta si cambia */
+}
+
+.tsj-chat-layout {
+  height: 100%;
+  display: flex;
+}
+
+.tsj-sidebar,
+.tsj-main {
+  height: 100%;
+}
+
+/* ===========================
+   EMPTY STATE (estilo ChatGPT)
+   =========================== */
+
+.tsj-main-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.tsj-main-empty-inner {
+  text-align: center;
+  max-width: 560px;
+
+  opacity: 0;
+  transform: translateY(6px);
+  animation: fadeUp 0.35s ease forwards;
+}
+
+.tsj-empty-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #f3f4f6; /* gris claro elegante */
+  letter-spacing: -0.3px;
+}
+
+.tsj-empty-text {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #9ca3af; /* gris suave */
+  margin: 0;
+}
+
+/* Animación sutil estilo ChatGPT */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tsj-history-item {
+  padding: 10px 14px !important;
+  border-radius: 12px;
+  border: 1px solid rgba(0,255,180,.35);
+  background-color: #111; // o el color de tu sidebar
+  margin-bottom: 8px;
+}
+
+.tsj-history-item-text {
+  font-size: 14px;
+  line-height: 1.4;
+  color: #e6f5ee; // un blanco suave que se integra con el tema
+}
+
+.tsj-history-item-date {
+  font-size: 12px;
+  color: #7f9c92; // tono gris verdoso elegante
+  margin-top: 4px;
+  display: block;
+}
+

@@ -1,10 +1,5 @@
 // src/chat/chat.component.ts
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ElementRef,
-} from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -48,7 +43,7 @@ export class ChatComponent implements OnInit {
 
   constructor(
     private readonly chat: ChatService,
-    private readonly auth: AuthService, // (por si luego lo usamos)
+    private readonly auth: AuthService // (por si luego lo usamos)
   ) {}
 
   // 🚀 Al iniciar, cargamos las sesiones del usuario
@@ -185,7 +180,7 @@ export class ChatComponent implements OnInit {
           // Si ya existía sesión, actualizamos su updatedAt en memoria
           const nowIso = new Date().toISOString();
           this.sessions = this.sessions.map((s) =>
-            s.id === currentSessionId ? { ...s, updatedAt: nowIso } : s,
+            s.id === currentSessionId ? { ...s, updatedAt: nowIso } : s
           );
         }
 
@@ -231,5 +226,23 @@ export class ChatComponent implements OnInit {
         behavior: 'smooth',
       });
     }, 0);
+  }
+
+  // =========================
+  //  Auto-ajuste del textarea
+  // =========================
+
+  autoResizeTextArea(event: Event): void {
+    const textarea = event.target as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    // Resetea primero para que calcule bien el scrollHeight
+    textarea.style.height = 'auto';
+
+    const MAX_HEIGHT = 220; // 🔹 límite similar al de ChatGPT (ajusta si quieres)
+    const newHeight = Math.min(textarea.scrollHeight, MAX_HEIGHT);
+
+    textarea.style.height = `${newHeight}px`;
+    textarea.style.overflowY = textarea.scrollHeight > MAX_HEIGHT ? 'auto' : 'hidden';
   }
 }
