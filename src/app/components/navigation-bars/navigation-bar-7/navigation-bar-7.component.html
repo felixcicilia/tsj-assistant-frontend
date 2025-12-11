@@ -1,0 +1,96 @@
+<header class="navbar navbar-expand-lg fixed-top">
+  <div class="container">
+    <component-logo-box class="pe-sm-3" />
+
+    <app-theme-switcher
+      class="form-check form-switch mode-switch order-lg-2 me-3 me-lg-4 ms-auto"
+    ></app-theme-switcher>
+
+    <!-- =======================
+         USUARIO AUTENTICADO
+    ======================== -->
+    <div
+      *ngIf="isLoggedIn; else guestMenu"
+      class="dropdown nav d-none d-sm-block order-lg-3"
+    >
+      <a
+        class="nav-link d-flex align-items-center p-0"
+        href="javascript:void(0)"
+        data-bs-toggle="dropdown"
+      >
+        <!-- Avatar textual con userInitial -->
+        <div
+          class="border rounded-circle d-flex align-items-center justify-content-center bg-primary text-white fw-bold"
+          style="width: 48px; height: 48px"
+        >
+          {{ userInitial }}
+        </div>
+
+        <div class="ps-2">
+          <div class="fs-xs lh-1 opacity-60">Hola,</div>
+          <div class="fs-sm dropdown-toggle">
+            {{ userShortName }}
+          </div>
+        </div>
+      </a>
+
+      <div class="dropdown-menu dropdown-menu-end my-1">
+        <a
+          class="dropdown-item d-flex align-items-center"
+          routerLink="/account/settings"
+        >
+          <i class="ai-user fs-lg opacity-70 me-2"></i>
+          Mi perfil
+        </a>
+
+        <a
+          class="dropdown-item d-flex align-items-center"
+          routerLink="/account/users"
+        >
+          <i class="ai-users fs-lg opacity-70 me-2"></i>
+          Usuarios
+        </a>
+
+        <a
+          class="dropdown-item d-flex align-items-center"
+          routerLink="/account/chat"
+        >
+          <i class="ai-messages fs-lg opacity-70 me-2"></i>
+          Chat
+        </a>
+
+        <div class="dropdown-divider"></div>
+
+        <a
+          class="dropdown-item d-flex align-items-center text-danger"
+          (click)="onLogout()"
+        >
+          <i class="ai-logout fs-lg opacity-70 me-2"></i>
+          Cerrar sesión
+        </a>
+      </div>
+    </div>
+
+    <!-- =======================
+         INVITADO
+    ======================== -->
+    <ng-template #guestMenu>
+      <div class="nav d-none d-sm-block order-lg-3">
+        <a class="btn btn-outline-primary btn-sm ms-3" routerLink="/sign-in">
+          Iniciar sesión
+        </a>
+      </div>
+    </ng-template>
+
+    <vertical-menu-button></vertical-menu-button>
+
+    <nav
+      class="collapse navbar-collapse"
+      #collapse="ngbCollapse"
+      [(ngbCollapse)]="isMenuCollapsed"
+      id="navbarNav"
+    >
+      <horizontal-app-menu />
+    </nav>
+  </div>
+</header>

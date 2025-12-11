@@ -1,0 +1,68 @@
+.navbar-nav {
+  .nav-item {
+    .show {
+      color: var(--ar-primary);
+    }
+  }
+  .collapse-item {
+    color: var(--ar-gray-800);
+  }
+}
+
+/* Plugin Base css */
+
+.popover {
+  width: max-content !important;
+}
+.ngx-slider .ngx-slider-pointer:after {
+  display: none;
+}
+.ngx-slider-bar {
+  height: 3px !important;
+}
+
+[data-bs-theme='dark'] .ngx-slider-bar {
+  background-color: transparent !important;
+}
+.ngx-slider .ngx-slider-selection {
+  background-color: var(--ar-primary) !important;
+}
+.ngx-slider .ngx-slider-pointer {
+  width: 18px !important;
+  height: 18px !important;
+  top: -7px !important;
+  background-color: var(--ar-primary) !important;
+}
+
+.calendar .fc-prev-button,
+.fc-next-button {
+  align-items: center;
+  .fa-chevron-left::after {
+    content: '\f140';
+    font-family: 'around-icons';
+    font-size: 20px;
+    color: var(--ar-primary);
+  }
+
+  .fa-chevron-right::after {
+    content: '\f141';
+    font-family: 'around-icons';
+    font-size: 20px;
+    color: var(--ar-primary);
+  }
+}
+
+.ngx-slider-floor {
+  visibility: hidden !important;
+}
+.ngx-slider-ceil {
+  visibility: hidden !important;
+}
+
+.ngx-slider .ngx-slider-bubble {
+  color: var(--ar-gray-800) !important;
+}
+
+.fc button {
+  text-transform: capitalize !important;
+}

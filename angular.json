@@ -3,13 +3,11 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "tsj-assistant-frontend": {
+    "around": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "style": "scss",
-          "standalone": true,
-          "type": "component"
+          "style": "scss"
         }
       },
       "root": "",
@@ -17,42 +15,71 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular/build:application",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
+            "outputPath": "./dist",
+            "index": "src/index.html",
             "browser": "src/main.ts",
+            "polyfills": ["zone.js", "src/polyfills.ts", "@angular/localize/init"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets",
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
+              "src/assets"
             ],
             "styles": [
-              "node_modules/flatpickr/dist/flatpickr.css",
-              "src/assets/fonts/bootstrap-icons/bootstrap-icons.css",
-              "src/assets/fonts/font-awesome/css/all.min.css",
+              "node_modules/ngx-lightbox/lightbox.css",
+              "node_modules/leaflet/dist/leaflet.css",
+              "aos/dist/aos.css",
+              "src/assets/icons/around-icons.min.css",
+              "src/assets/scss/theme.scss",
               "src/styles.scss"
             ],
-            "outputMode": "static"
+            "scripts": [
+              "node_modules/@lottiefiles/lottie-player/dist/lottie-player.js",
+              "node_modules/jquery/dist/jquery.min.js"
+            ],
+            "allowedCommonJsDependencies": [
+              "img-comparison-slider",
+              "lottie-web",
+              "aos",
+              "leaflet",
+              "masonry-layout",
+              "can-use-dom"
+            ],
+            "stylePreprocessorOptions": {
+              "sass": {
+                "silenceDeprecations": [
+                  "color-functions",
+                  "global-builtin",
+                  "import",
+                  "mixed-decls"
+                ]
+              }
+            }
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "8mb",
+                  "maximumError": "10mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "8kb",
+                  "maximumError": "10kb"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                }
+              }
             },
             "development": {
               "optimization": false,
@@ -60,50 +87,51 @@
               "sourceMap": true
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular/build:dev-server",
+          "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "tsj-assistant-frontend:build:production"
+              "buildTarget": "around:build:production"
             },
             "development": {
-              "buildTarget": "tsj-assistant-frontend:build:development"
+              "buildTarget": "around:build:development"
             }
           },
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
-          "builder": "@angular/build:extract-i18n"
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "buildTarget": "around:build"
+          }
         },
         "test": {
-          "builder": "@angular/build:karma",
+          "builder": "@angular-devkit/build-angular:karma",
           "options": {
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
             "tsConfig": "tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets",
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
+              "src/assets"
             ],
             "styles": [
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/flatpickr/dist/flatpickr.css",
-              "src/assets/fonts/bootstrap-icons/bootstrap-icons.css",
-              "src/assets/fonts/font-awesome/css/all.min.css",
+              "src/assets/icons/around-icons.min.css",
+              "src/assets/scss/theme.scss",
               "src/styles.scss"
             ],
-            "scripts": ["node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"]
+            "scripts": []
           }
         }
       }
     }
   },
   "cli": {
-    "analytics": "dcbcd4f4-6bcb-4225-bffb-3a36263d3a23"
+    "analytics": false
   }
 }

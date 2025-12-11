@@ -1,0 +1,339 @@
+<!-- src/app/account/token-usage/lista-token-usage.component.html -->
+
+<div class="container-fluid px-0">
+  <div class="row g-3">
+    <!-- ============================
+         COLUMNA IZQUIERDA
+         ============================ -->
+    <div class="col-12 col-lg-8">
+      <!-- 🔹 BLOQUE 1: RESUMEN GENERAL (HOY / 7 DÍAS / MES / AÑO) -->
+      <div class="card border-0 shadow-sm mb-3 tsj-card-dark">
+        <div class="card-header border-0 pb-0">
+          <h5 class="mb-1">Resumen general de consumo</h5>
+          <small class="text-body-secondary">
+            Vista rápida del uso de tokens en diferentes periodos.
+          </small>
+        </div>
+
+        <div class="card-body pt-3">
+          <div class="row g-3">
+            <!-- Hoy -->
+            <div class="col-12 col-md-6 col-xl-3">
+              <div class="p-3 rounded-4 bg-dark bg-opacity-25 h-100">
+                <div class="small text-body-secondary mb-1">
+                  Reporte actual (hoy)
+                </div>
+                <div class="fw-semibold small mb-1">
+                  {{ todayLabel }}
+                </div>
+                <div class="h4 mb-0">
+                  {{ todayTokens | number }}
+                </div>
+                <div class="small text-body-secondary">
+                  {{ todayCalls }} llamadas · {{ todayCost }} USD
+                </div>
+              </div>
+            </div>
+
+            <!-- Últimos 7 días -->
+            <div class="col-12 col-md-6 col-xl-3">
+              <div class="p-3 rounded-4 bg-dark bg-opacity-25 h-100">
+                <div class="small text-body-secondary mb-1">Últimos 7 días</div>
+                <div class="fw-semibold small mb-1">
+                  {{ last7Label }}
+                </div>
+                <div class="h4 mb-0">
+                  {{ last7Tokens | number }}
+                </div>
+                <div class="small text-body-secondary">
+                  {{ last7Cost | number: "1.4-6" }} USD
+                </div>
+              </div>
+            </div>
+
+            <!-- Mes actual -->
+            <div class="col-12 col-md-6 col-xl-3">
+              <div class="p-3 rounded-4 bg-dark bg-opacity-25 h-100">
+                <div class="small text-body-secondary mb-1">
+                  Reporte del mes
+                </div>
+                <div class="fw-semibold small mb-1">
+                  {{ currentMonthLabel }}
+                </div>
+                <div class="h4 mb-0">
+                  {{ monthTokens | number }}
+                </div>
+                <div class="small text-body-secondary">
+                  {{ monthCost | number: "1.4-6" }} USD
+                </div>
+              </div>
+            </div>
+
+            <!-- Año actual -->
+            <div class="col-12 col-md-6 col-xl-3">
+              <div class="p-3 rounded-4 bg-dark bg-opacity-25 h-100">
+                <div class="small text-body-secondary mb-1">
+                  Reporte del año
+                </div>
+                <div class="fw-semibold small mb-1">
+                  {{ currentYear }}
+                </div>
+                <div class="h4 mb-0">
+                  {{ yearTokens | number }}
+                </div>
+                <div class="small text-body-secondary">
+                  {{ yearCost | number: "1.4-6" }} USD
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔹 BLOQUE 2: REPORTE POR RANGO (FORM + RESUMEN + TABLA) -->
+      <div class="card border-0 shadow-sm tsj-card-dark">
+        <div
+          class="card-header d-flex justify-content-between align-items-center border-0 pb-0"
+        >
+          <div>
+            <h5 class="mb-1">Reporte por rango</h5>
+            <small class="text-body-secondary">
+              Define un rango de fechas y horas o recupera los últimos 7 días.
+            </small>
+          </div>
+
+          <button
+            class="btn btn-sm btn-outline-success px-3"
+            type="button"
+            (click)="loadLast7Days()"
+            [disabled]="loadingRange"
+          >
+            <span
+              *ngIf="loadingRange"
+              class="spinner-border spinner-border-sm me-1"
+            ></span>
+            Últimos 7 días
+          </button>
+        </div>
+
+        <div class="card-body pt-3">
+          <!-- Rango actual -->
+          <div
+            class="d-flex flex-column flex-md-row justify-content-between small mb-3"
+          >
+            <div>
+              <span class="text-body-secondary">Rango actual:</span>
+              <span class="fw-semibold">{{ rangeLabel }}</span>
+            </div>
+            <div class="text-body-secondary">
+              Registros:
+              <span class="fw-semibold">{{ items.length }}</span>
+            </div>
+          </div>
+
+          <!-- Filtro de rango -->
+          <form
+            [formGroup]="rangeForm"
+            class="row g-2 align-items-end mb-4"
+            (ngSubmit)="applyRangeFilter()"
+          >
+            <div class="col-md-3">
+              <label class="form-label small">Desde (fecha)</label>
+              <input
+                type="date"
+                class="form-control form-control-sm"
+                formControlName="fromDate"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label small">Hasta (fecha)</label>
+              <input
+                type="date"
+                class="form-control form-control-sm"
+                formControlName="toDate"
+              />
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label small">Hora inicio</label>
+              <input
+                type="time"
+                class="form-control form-control-sm"
+                formControlName="fromTime"
+              />
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label small">Hora fin</label>
+              <input
+                type="time"
+                class="form-control form-control-sm"
+                formControlName="toTime"
+              />
+            </div>
+
+            <div class="col-md-2 d-grid">
+              <button
+                class="btn btn-success btn-sm"
+                type="submit"
+                [disabled]="loadingRange"
+              >
+                <span
+                  *ngIf="loadingRange"
+                  class="spinner-border spinner-border-sm me-1"
+                ></span>
+                Aplicar filtro
+              </button>
+            </div>
+          </form>
+
+          <!-- Resumen del rango -->
+          <div class="row text-center mb-3" *ngIf="rangeData">
+            <div class="col-6 col-md-3 mb-2">
+              <div class="small text-body-secondary">Tokens totales</div>
+              <div class="h5 mb-0">{{ totalTokens | number }}</div>
+            </div>
+            <div class="col-6 col-md-3 mb-2">
+              <div class="small text-body-secondary">Tokens input</div>
+              <div class="h5 mb-0">{{ totalInputTokens | number }}</div>
+            </div>
+            <div class="col-6 col-md-3 mb-2">
+              <div class="small text-body-secondary">Tokens output</div>
+              <div class="h5 mb-0">{{ totalOutputTokens | number }}</div>
+            </div>
+            <div class="col-6 col-md-3 mb-2">
+              <div class="small text-body-secondary">Costo (USD)</div>
+              <div class="h5 mb-0">{{ totalCostUsd }}</div>
+            </div>
+          </div>
+
+          <!-- Tabla de registros (consumo en el rango) -->
+          <div
+            class="table-responsive rounded-4 border border-secondary border-opacity-25"
+            style="max-height: 240px; overflow-y: auto"
+          >
+            <table class="table table-sm align-middle mb-0">
+              <thead>
+                <tr class="text-body-secondary small">
+                  <th>Fecha / hora</th>
+                  <th class="text-end">Tokens</th>
+                  <th class="text-end">Input</th>
+                  <th class="text-end">Output</th>
+                  <th class="text-end">USD</th>
+                  <th>Modelo</th>
+                  <th>Canal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let r of items; trackBy: trackById">
+                  <td>{{ r.usedAt | date: "short" }}</td>
+                  <td class="text-end">{{ r.tokensUsed | number }}</td>
+                  <td class="text-end">{{ r.inputTokens ?? 0 | number }}</td>
+                  <td class="text-end">{{ r.outputTokens ?? 0 | number }}</td>
+                  <td class="text-end">{{ r.costUsd }}</td>
+                  <td>
+                    <span class="badge bg-light text-dark">
+                      {{ r.model || "—" }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge bg-secondary">
+                      {{ r.channel || "—" }}
+                    </span>
+                  </td>
+                </tr>
+
+                <tr *ngIf="items.length === 0 && !loadingRange">
+                  <td colspan="7" class="text-center text-body-secondary py-3">
+                    No hay registros en el rango seleccionado.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================
+         COLUMNA DERECHA: RESUMEN MENSUAL
+         ============================ -->
+    <div class="col-12 col-lg-4">
+      <div class="card border-0 shadow-sm tsj-card-dark h-100">
+        <div class="card-header border-0 pb-0">
+          <h5 class="mb-2">Resumen mensual</h5>
+
+          <!-- Controles debajo del título -->
+          <div class="d-flex gap-2 mb-2 mt-2">
+            <input
+              type="number"
+              class="form-control form-control-sm"
+              style="width: 90px; border-radius: 5px"
+              [value]="currentYear"
+              (change)="onYearChange($event)"
+              min="2024"
+              max="2100"
+            />
+
+            <button
+              class="btn btn-sm btn-outline-success px-3"
+              style="border-radius: 5px"
+              type="button"
+              (click)="loadYearSummary(currentYear)"
+              [disabled]="loadingMonthly"
+            >
+              <span
+                *ngIf="loadingMonthly"
+                class="spinner-border spinner-border-sm me-1"
+              ></span>
+              Actualizar
+            </button>
+          </div>
+
+          <!-- Resumen del año -->
+          <div class="mb-3 small" *ngIf="yearTokens !== null">
+            <span class="text-body-secondary"
+              >Reporte del año {{ currentYear }}:</span
+            >
+            <div class="fw-semibold mt-1">
+              {{ yearTokens | number }} tokens ·
+              {{ yearCost | number: "1.4-6" }} USD
+            </div>
+          </div>
+        </div>
+
+        <!-- TABLA SIN SCROLL -->
+        <div class="card-body pt-2">
+          <table
+            class="table table-sm align-middle mb-0 rounded-4 overflow-hidden border border-secondary border-opacity-25"
+            style="border-radius: 12px"
+            *ngIf="monthlySummaries?.length; else noMonthly"
+          >
+            <thead class="bg-dark bg-opacity-25">
+              <tr class="text-body-secondary small">
+                <th>Mes</th>
+                <th class="text-end">Tokens</th>
+                <th class="text-end">USD</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let m of monthlySummaries">
+                <td class="fw-medium">{{ getMonthName(m.month) }}</td>
+                <td class="text-end">{{ m.totalTokens | number }}</td>
+                <td class="text-end">{{ m.totalCostUsd | number: "1.4-6" }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <ng-template #noMonthly>
+            <p class="text-body-secondary mb-0 mt-2">
+              No hay datos registrados para el año seleccionado.
+            </p>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

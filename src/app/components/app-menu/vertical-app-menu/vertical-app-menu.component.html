@@ -1,0 +1,18 @@
+<ul class="navbar-nav flex-column p-0">
+  @for (item of menuItems; track $index) {
+    @if (item.children) {
+      <vertical-menu-item-with-children
+        [item]="item"
+        [activeMenuItems]="this.activeMenuItems"
+        [itemClassName]="'nav-item px-0'"
+        [linkClassName]="'nav-link px-0' + getActiveClass(item)"
+      />
+    } @else {
+      <vertical-menu-item
+        [item]="item"
+        [itemClassName]="'nav-item ps-0'"
+        [linkClassName]="'nav-link ps-0' + getActiveClass(item)"
+      />
+    }
+  }
+</ul>

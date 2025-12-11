@@ -1,0 +1,15 @@
+<ng-container [class]="class" data-bs-toggle="mode">
+  <input
+    class="form-check-input"
+    type="checkbox"
+    [defaultChecked]="isDarkMode"
+    id="theme-mode"
+    (click)="themeModeService.toggleTheme()"
+  />
+  <label class="form-check-label" for="theme-mode">
+    <i class="ai-sun fs-lg"></i>
+  </label>
+  <label class="form-check-label" for="theme-mode">
+    <i class="ai-moon fs-lg"></i>
+  </label>
+</ng-container>

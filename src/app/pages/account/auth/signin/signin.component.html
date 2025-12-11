@@ -1,0 +1,92 @@
+<!-- src/auth/signin/signin.component.html -->
+<auth-layout>
+  <div
+    class="d-flex flex-column justify-content-center align-items-center w-lg-50 h-100 px-3 px-lg-5 py-5 py-lg-0"
+  >
+    <div class="w-100" style="max-width: 526px">
+      <h1>Inicia sesión en TSJ Assistant</h1>
+      <p class="pb-3 mb-3 mb-lg-4">
+        ¿Aún no tienes cuenta?&nbsp;&nbsp;
+        <a routerLink="sign-up">Regístrate aquí</a>
+      </p>
+
+      <form
+        class="needs-validation"
+        novalidate
+        [formGroup]="loginForm"
+        (ngSubmit)="onSubmit()"
+      >
+        <!-- Email -->
+        <div class="pb-3 mb-3">
+          <div class="position-relative">
+            <i
+              class="ai-mail fs-lg position-absolute top-50 start-0 translate-middle-y ms-3"
+            ></i>
+            <input
+              class="form-control form-control-lg ps-5"
+              type="email"
+              formControlName="email"
+              placeholder="Correo electrónico"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-4">
+          <div class="position-relative">
+            <i
+              class="ai-lock-closed fs-lg position-absolute top-50 start-0 translate-middle-y ms-3"
+            ></i>
+            <div class="password-toggle">
+              <input
+                class="form-control form-control-lg ps-5"
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Contraseña"
+                required
+              />
+              <label
+                class="password-toggle-btn"
+                aria-label="Mostrar / ocultar contraseña"
+              >
+                <input
+                  class="password-toggle-check"
+                  type="checkbox"
+                  (change)="showPassword = !showPassword"
+                />
+                <span class="password-toggle-indicator"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón submit -->
+        <button
+          class="btn btn-lg btn-primary w-100 mb-4"
+          type="submit"
+          [disabled]="loading || loginForm.invalid"
+        >
+          <span
+            class="spinner-border spinner-border-sm me-2"
+            *ngIf="loading"
+          ></span>
+          {{ loading ? 'Validando credenciales…' : 'Iniciar sesión' }}
+        </button>
+
+        <!-- Mensajes de feedback -->
+        <div class="mt-2" *ngIf="error">
+          <small class="text-danger">{{ error }}</small>
+        </div>
+
+        <div class="mt-2" *ngIf="success">
+          <small class="text-success">{{ success }}</small>
+        </div>
+
+        <div class="mt-2 small text-muted" *ngIf="loggedUser">
+          Sesión iniciada como {{ loggedUser?.email }} ({{ loggedUser?.role }}).
+        </div>
+      </form>
+    </div>
+  </div>
+</auth-layout>

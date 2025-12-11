@@ -1,0 +1,383 @@
+<a
+  (click)="openOffcanvas(customizerOffcanvasContent)"
+  class="position-fixed top-50 bg-light text-dark fw-medium border rounded-pill shadow text-decoration-none"
+  href="javascript:void(0)"
+  data-bs-toggle="offcanvas"
+  style="
+    right: -1.75rem;
+    margin-top: -1rem;
+    padding: 0.25rem 0.75rem;
+    transform: rotate(-90deg);
+    font-size: calc(var(--ar-body-font-size) * 0.8125);
+    letter-spacing: 0.075rem;
+    z-index: 1030;
+  "
+>
+  <i class="ai-settings text-primary fs-base me-1 ms-n1"></i>
+  Customize
+</a>
+
+<ng-template
+  #customizerOffcanvasContent
+  class="offcanvas offcanvas-end show"
+  id="customizer"
+  data-bs-scroll="true"
+  data-bs-backdrop="false"
+  tabindex="-1"
+  aria-modal="true"
+  role="dialog"
+>
+  <div class="offcanvas-header border-bottom">
+    <h4 class="offcanvas-title">Customize theme</h4>
+    <button
+      (click)="offcanvasService.dismiss()"
+      class="btn-close"
+      type="button"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="d-flex align-items-center mb-3">
+      <i class="ai-paint-roll text-body-secondary fs-4 me-2"></i>
+      <h5 class="mb-0">Colors</h5>
+    </div>
+    <div class="row row-cols-3 g-3 mb-5" id="theme-colors">
+      @for (color of colors; track color.variant) {
+        <div class="col">
+          <div class="text-dark fs-sm fw-medium mb-2">{{ color.name }}</div>
+          <div
+            class="color-swatch"
+            id="theme-{{ color.variant }}"
+            attr.data-color-labels="[&quot;theme-{{
+              color.variant
+            }}&quot;, &quot;{{ color.variant }}&quot;, &quot;{{
+              color.variant
+            }}-rgb&quot;]"
+          >
+            <label
+              class="ratio ratio-4x3 border rounded-1 cursor-pointer mb-1"
+              [for]="color.variant"
+              [style.background-color]="customizerConfig[color.variant]"
+              role="button"
+            ></label>
+            <input
+              class="form-control form-control-sm"
+              maxlength="7"
+              [name]="color.variant"
+              type="text"
+              (change)="onChange($event)"
+              [value]="customizerConfig[color.variant]"
+            />
+            <input
+              class="visually-hidden"
+              maxlength="7"
+              type="color"
+              [id]="color.variant"
+              [name]="color.variant"
+              (change)="onChange($event)"
+              [value]="customizerConfig[color.variant]"
+            />
+          </div>
+        </div>
+      }
+    </div>
+    <div class="d-flex align-items-center mb-3">
+      <i class="ai-align-left text-body-secondary fs-4 me-2"></i>
+      <h5 class="mb-0">
+        Typography
+        <span class="text-body-secondary fs-sm fw-normal">(1rem = 16px)</span>
+      </h5>
+    </div>
+    <div class="mb-5">
+      <div class="mb-3">
+        <label class="text-dark fs-sm fw-medium pt-1 mb-2" for="font-url"
+          >Google font URL</label
+        >
+        <input
+          class="form-control"
+          type="url"
+          name="url"
+          (change)="onChange($event)"
+          [value]="customizerConfig.url"
+          id="font-url"
+        />
+      </div>
+      <div class="mb-3">
+        <label
+          class="text-dark fs-sm fw-medium pt-1 mb-2"
+          for="body-font-family"
+          >Font family</label
+        >
+        <input
+          class="form-control"
+          type="text"
+          name="fontFamily"
+          (change)="onChange($event)"
+          [value]="customizerConfig.fontFamily"
+          id="body-font-family"
+        />
+      </div>
+      <div class="row row-cols-2">
+        <div class="col mb-3">
+          <label
+            class="d-flex w-100 text-dark fs-sm fw-medium pt-1 mb-2"
+            for="root-font-size"
+            >Root font size, rem</label
+          >
+
+          <select
+            class="form-select"
+            id="root-font-size"
+            name="rootFontSize"
+            (change)="onChange($event)"
+          >
+            @for (item of rootFontSizes; track $index) {
+              <option
+                [value]="item + 'rem'"
+                [selected]="item === customizerConfig.rootFontSize"
+              >
+                {{ item }}
+              </option>
+            }
+          </select>
+        </div>
+        <div class="col mb-3">
+          <label
+            class="d-flex w-100 text-dark fs-sm fw-medium pt-1 mb-2"
+            for="body-font-size"
+            >Body font size, rem</label
+          >
+
+          <select
+            class="form-select"
+            id="body-font-size"
+            name="bodyFontSize"
+            (change)="onChange($event)"
+          >
+            @for (item of bodyFontSizes; track $index) {
+              <option
+                [value]="item + 'rem'"
+                [selected]="item === customizerConfig.bodyFontSize"
+              >
+                {{ item }}
+              </option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex align-items-center mt-n2 mb-3">
+      <i class="ai-maximize text-body-secondary fs-5 me-2"></i>
+      <h5 class="mb-0">Borders / Rounding</h5>
+    </div>
+    <div class="mb-3">
+      <label
+        class="d-flex w-100 text-dark fs-sm fw-medium pt-1 mb-2"
+        for="border-width"
+        >Border width, px</label
+      >
+      <input
+        class="form-control"
+        type="number"
+        min="0"
+        step="1"
+        name="borderWidth"
+        (change)="onChange($event)"
+        [value]="customizerConfig.borderWidth"
+        id="border-width"
+      />
+    </div>
+    <div class="mb-3">
+      <label
+        class="d-flex w-100 text-dark fs-sm fw-medium pt-1 mb-2"
+        for="border-radius"
+        >Rounded base, rem</label
+      >
+      <input
+        class="form-control"
+        type="number"
+        min="0"
+        step=".05"
+        name="roundedBase"
+        (change)="onChange($event)"
+        [value]="customizerConfig.roundedBase"
+        id="border-radius"
+      />
+    </div>
+    <div id="theme-border-radiuses">
+      <div class="mb-3">
+        <label
+          class="d-flex w-100 text-dark fs-sm fw-medium pt-1 mb-2"
+          for="border-radius-sm"
+        >
+          Rounded SM<span class="text-body-secondary fw-normal ms-1">
+            = Rounded base multiplied by</span
+          ></label
+        >
+        <input
+          class="form-control"
+          type="number"
+          min="0"
+          step=".05"
+          name="roundedSm"
+          (change)="onChange($event)"
+          [value]="customizerConfig.roundedSm"
+          id="border-radius-sm"
+        />
+      </div>
+      <div class="mb-3">
+        <label
+          class="d-flex w-100 text-dark fs-sm fw-medium pt-1 mb-2"
+          for="border-radius-lg"
+        >
+          Rounded LG<span class="text-body-secondary fw-normal ms-1">
+            = Rounded base multiplied by</span
+          ></label
+        >
+        <input
+          class="form-control"
+          type="number"
+          min="0"
+          step=".05"
+          name="roundedLg"
+          (change)="onChange($event)"
+          [value]="customizerConfig.roundedLg"
+          id="border-radius-lg"
+        />
+      </div>
+      <div class="mb-3">
+        <label
+          class="d-flex w-100 text-dark fs-sm fw-medium pt-1 mb-2"
+          for="border-radius-xl"
+        >
+          Rounded XL<span class="text-body-secondary fw-normal ms-1">
+            = Rounded base multiplied by</span
+          ></label
+        >
+        <input
+          class="form-control"
+          type="number"
+          min="0"
+          step=".05"
+          name="roundedXl"
+          (change)="onChange($event)"
+          [value]="customizerConfig.roundedXl"
+          id="border-radius-xl"
+        />
+      </div>
+      <div class="mb-3">
+        <label
+          class="d-flex w-100 text-dark fs-sm fw-medium pt-1 mb-2"
+          for="border-radius-xxl"
+        >
+          Rounded 2XL<span class="text-body-secondary fw-normal ms-1">
+            = Rounded base multiplied by</span
+          ></label
+        >
+        <input
+          class="form-control"
+          type="number"
+          min="0"
+          step=".05"
+          name="roundedXxl"
+          (change)="onChange($event)"
+          [value]="customizerConfig.roundedXxl"
+          id="border-radius-xxl"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="offcanvas-header border-top"
+    [class.d-none]="!isThemeCustomized"
+    id="customizer-btns"
+  >
+    <button
+      class="btn btn-secondary w-100 me-3"
+      type="button"
+      id="customizer-reset-btn"
+      (click)="resetConfig()"
+    >
+      <i class="ai-undo fs-lg me-2 ms-n1"></i>
+      Reset
+    </button>
+    <button
+      class="btn btn-primary w-100"
+      (click)="openModal(customizerModalContent)"
+      type="button"
+      data-bs-toggle="modal"
+      data-bs-target="#customizer-modal"
+    >
+      <i class="ai-code-curly fs-lg me-2 ms-n1"></i>
+      Show styles
+    </button>
+  </div>
+</ng-template>
+
+<ng-template
+  #customizerModalContent
+  class="modal fade"
+  id="customizer-modal"
+  tabindex="-1"
+  style="display: block"
+  aria-modal="true"
+  role="dialog"
+>
+  <div class="modal-header">
+    <h4 class="modal-title">Your custom styles</h4>
+    <button
+      class="btn-close"
+      (click)="modalService.dismissAll()"
+      type="button"
+      data-bs-dismiss="modal"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="modal-body py-4">
+    <p class="mb-3">
+      Grab the generated styles below. Wrap them inside
+      <code>&lt;style&gt;</code> tag and put in the
+      <code>&lt;head&gt;</code> section of your HTML document.
+    </p>
+    <p class="mb-4">
+      <span class="fw-medium">IMPORTANT:</span> In order for these styles to
+      take effect you have to placed them below:<br /><code
+        >&lt;link rel="stylesheet" media="screen"
+        href="assets/css/theme.min.css"&gt;</code
+      >
+    </p>
+    <div class="bg-secondary overflow-hidden rounded-4">
+      <pre
+        class="text-wrap bg-transparent border-0 text-dark p-4"
+        id="custom-generated-styles"
+        #configCode
+        >{{ preValue }}</pre
+      >
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button
+      class="btn btn-secondary w-100 w-sm-auto mb-3 mb-sm-0"
+      type="button"
+      data-bs-dismiss="modal"
+      (click)="modalService.dismissAll()"
+    >
+      Close
+    </button>
+    <button
+      class="btn btn-primary w-100 w-sm-auto ms-sm-3"
+      type="button"
+      id="copy-styles-btn"
+      (click)="copyStyles(configCode)"
+    >
+      @if (showCopiedButton) {
+        <i class="ai-check me-2 ms-n1"></i>Copied!
+      } @else {
+        <i class="ai-copy me-2 ms-n1"></i>
+        Copy styles
+      }
+    </button>
+  </div>
+</ng-template>

@@ -1,0 +1,408 @@
+<!-- src/app/account/chat/chat.component.html -->
+<div class="row position-relative overflow-hidden gx-2 z-1">
+  <!-- ▓▓ COL IZQUIERDA: HISTORIAL / SESIONES ▓▓ -->
+  <div class="col-xl-4 d-none d-xl-block">
+    <div class="position-relative h-100 bg-light rounded-5 border-0">
+      <div class="rounded-5 overflow-hidden">
+        <!-- Header con buscador -->
+        <div class="card-header w-100 border-0 px-4 pt-4 pb-3">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <div class="text-uppercase small text-body-secondary mb-1">
+                Historial
+              </div>
+              <h2 class="h6 mb-0">Sesiones</h2>
+              <p class="text-body-secondary fs-sm mb-0">
+                Revise sus consultas previas o inicie una nueva.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="btn btn-sm btn-secondary fw-semibold"
+              (click)="startNewSession()"
+              [disabled]="sending"
+            >
+              <span class="me-1">+</span>
+              Nueva sesión
+            </button>
+          </div>
+
+          <div class="position-relative">
+            <input
+              class="form-control pe-5"
+              type="text"
+              [(ngModel)]="term"
+              (keyup)="filterChat()"
+              placeholder="Buscar por título o canal"
+            />
+            <i
+              class="ai-search fs-lg text-nav position-absolute top-50 end-0 translate-middle-y me-3"
+            ></i>
+          </div>
+        </div>
+
+        <!-- Lista de sesiones con Simplebar -->
+        <ngx-simplebar
+          class="card-body px-0 pb-4 pb-xl-0 pt-1"
+          style="max-height: 700px; overflow-x: hidden"
+        >
+          <button
+            *ngFor="
+              let s of filteredSessions;
+              let i = index;
+              trackBy: trackBySessionId
+            "
+            type="button"
+            class="session-item d-flex align-items-center text-decoration-none px-3 py-3 border-0 w-100 text-start bg-transparent"
+            [ngClass]="{ 'bg-gray': activeTab === i }"
+            (click)="selectSession(s, i)"
+          >
+            <!-- Avatar iniciales -->
+            <div
+              class="d-flex align-items-center justify-content-center position-relative flex-shrink-0 rounded-circle text-primary fs-lg fw-semibold"
+              style="
+                width: 44px;
+                height: 44px;
+                background-color: rgba(var(--ar-primary-rgb), 0.15);
+              "
+            >
+              {{ (s.title || "TSJ").slice(0, 2).toUpperCase() }}
+              <span
+                class="position-absolute bottom-0 end-0 border border-white rounded-circle me-1"
+                style="
+                  width: 0.55rem;
+                  height: 0.55rem;
+                  background-color: #d7dde2;
+                "
+              ></span>
+            </div>
+
+            <!-- Contenido: título + canal + fecha -->
+            <div
+              class="d-flex justify-content-between align-items-center flex-grow-1 min-w-0 ps-2 ms-1"
+            >
+              <div class="me-2 min-w-0">
+                <div
+                  class="session-title text-truncate mb-1"
+                  style="max-width: 240px; font-size: 0.9rem; font-weight: 500"
+                >
+                  {{ s.title || "Consulta sin título" }}
+                </div>
+                <p class="text-body fs-xs mb-0">
+                  {{ s.channel || "web" }}
+                </p>
+              </div>
+              <div class="text-end flex-shrink-0">
+                <span class="d-block fs-xs text-body-secondary">
+                  {{ s.createdAt | date: "short" }}
+                </span>
+              </div>
+            </div>
+          </button>
+
+          <div
+            class="px-4 pt-2 text-body-secondary fs-sm"
+            *ngIf="filteredSessions.length === 0 && !loadingSessions"
+          >
+            <p class="mb-1 fw-semibold">Sin sesiones registradas</p>
+            <p class="mb-0">
+              Cree su primera consulta usando el botón
+              <strong>“Nueva sesión”</strong>.
+            </p>
+          </div>
+        </ngx-simplebar>
+      </div>
+    </div>
+  </div>
+  <!-- ▓▓ COL DERECHA: CHAT ▓▓ -->
+  <div class="col-xl-8">
+    <div class="card h-100 border-0">
+      <!-- Header del chat -->
+      <div class="navbar card-header w-100 mx-0 px-4">
+        <div class="d-flex align-items-center w-100 px-sm-3">
+          <!-- botón mobile para abrir sidebar -->
+          <button
+            class="navbar-toggler d-xl-none me-3 me-sm-4"
+            type="button"
+            (click)="openEnd(contactsOffcanvasTpl)"
+            aria-label="Toggle contacts list"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <!-- Avatar TSJ -->
+          <div
+            class="d-flex align-items-center justify-content-center position-relative flex-shrink-0 rounded-circle text-primary fs-lg fw-semibold"
+            style="
+              width: 48px;
+              height: 48px;
+              background-color: rgba(var(--ar-primary-rgb), 0.15);
+            "
+          >
+            {{ avatar2 }}
+            <span
+              class="position-absolute bottom-0 end-0 bg-success border border-white rounded-circle me-1"
+              style="width: 0.625rem; height: 0.625rem"
+            ></span>
+          </div>
+
+          <div class="h6 ps-2 ms-1 mb-0">
+            {{
+              selectedSession
+                ? selectedSession.title || "Consulta en curso"
+                : "Asistente jurídico TSJ"
+            }}
+          </div>
+
+          <div class="dropdown ms-auto" ngbDropdown>
+            <a
+              ngbDropdownToggle
+              class="btn btn-icon btn-sm btn-outline-secondary border-0 rounded-circle me-n2"
+              type="button"
+              aria-label="Actions"
+            >
+              <i class="ai-dots-vertical fs-4 fw-bold"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end my-1" ngbDropdownMenu>
+              <a class="dropdown-item" href="/account/settings">
+                <i class="ai-user fs-base opacity-80 me-2"></i>
+                Ver perfil
+              </a>
+              <a class="dropdown-item" (click)="startNewSession()">
+                <i class="ai-logout fs-base opacity-80 me-2"></i>
+                Cerrar sesión actual
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cuerpo del chat con Simplebar -->
+      <ngx-simplebar
+        class="card-body pb-0 pt-4"
+        #scrollRef
+        style="max-height: 580px"
+      >
+        <!-- Estado vacío -->
+        <ng-container *ngIf="!selectedSession">
+          <div class="text-body-secondary text-center mb-4">Hoy</div>
+          <div class="d-flex flex-column align-items-center text-center py-5">
+            <h2 class="h3 mb-3">Bienvenido al asistente jurídico</h2>
+            <p class="text-body-secondary mb-0" style="max-width: 520px">
+              Inicie una consulta usando la caja de texto inferior o seleccione
+              una sesión previa en el historial del panel izquierdo.
+            </p>
+          </div>
+        </ng-container>
+
+        <!-- Mensajes de la sesión -->
+        <ng-container *ngIf="selectedSession">
+          <div class="text-body-secondary text-center mb-4">
+            {{ selectedSession.createdAt | date: "mediumDate" }}
+          </div>
+
+          <ng-container *ngFor="let msg of messages; trackBy: trackByMsgId">
+            <!-- Asistente (izquierda) -->
+            <div class="mb-3" style="max-width: 520px" *ngIf="isAssistant(msg)">
+              <div class="d-flex align-items-end mb-2">
+                <div
+                  class="flex-shrink-0 pe-2 me-1 d-flex align-items-center justify-content-center rounded-circle text-primary fs-lg fw-semibold"
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    background-color: rgba(var(--ar-primary-rgb), 0.15);
+                  "
+                >
+                  T
+                </div>
+                <div class="message-box-start text-dark fs-sm">
+                  {{ msg.content }}
+                </div>
+              </div>
+              <div class="fs-xs text-body-secondary text-end">
+                {{ msg.createdAt | date: "shortTime" }}
+              </div>
+            </div>
+
+            <!-- Usuario (derecha) -->
+            <div
+              class="ms-auto mb-3"
+              style="max-width: 520px"
+              *ngIf="isUser(msg)"
+            >
+              <div class="d-flex align-items-end mb-2">
+                <div class="message-box-end bg-primary text-white fs-sm">
+                  {{ msg.content }}
+                </div>
+                <div
+                  class="flex-shrink-0 ms-1 d-flex align-items-center justify-content-center rounded-circle text-white fs-lg fw-semibold"
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    background-color: var(--ar-primary);
+                  "
+                >
+                  U
+                </div>
+              </div>
+              <div class="fs-xs text-body-secondary">
+                <i class="ai-check text-primary fs-xl mt-n1 me-1"></i>
+                {{ msg.createdAt | date: "shortTime" }}
+              </div>
+            </div>
+          </ng-container>
+
+          <p
+            class="text-body-secondary fs-sm text-center mt-3"
+            *ngIf="messages.length === 0 && !loadingMessages"
+          >
+            Esta sesión aún no tiene mensajes registrados.
+          </p>
+        </ng-container>
+      </ngx-simplebar>
+
+      <!-- Footer: input -->
+      <div class="card-footer w-100 border-0 mx-0 px-4">
+        <form
+          class="d-flex align-items-end border rounded-3 pb-3 pe-3 mx-sm-3"
+          (ngSubmit)="sendMessage()"
+        >
+          <textarea
+            class="form-control border-0"
+            rows="3"
+            [(ngModel)]="newQuestion"
+            name="question"
+            placeholder="Describa su consulta: fase procesal, tipo de audiencia, artículo o situación concreta…"
+            style="resize: none"
+            [disabled]="sending"
+            (input)="scrollToBottom()"
+          ></textarea>
+
+          <div class="nav flex-nowrap align-items-center">
+            <button
+              type="submit"
+              class="btn btn-sm btn-secondary ms-3"
+              [disabled]="!newQuestion?.trim() || sending"
+            >
+              <span
+                class="spinner-border spinner-border-sm me-1"
+                *ngIf="sending"
+              ></span>
+              <span *ngIf="!sending">Enviar</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #contactsOffcanvasTpl let-offcanvas="offcanvas">
+  <div class="rounded-5 overflow-hidden h-100 d-flex flex-column bg-light">
+    <!-- Header -->
+    <div class="card-header w-100 border-0 px-4 pt-4 pb-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <div class="text-uppercase small text-body-secondary mb-1">
+            Historial
+          </div>
+          <h2 class="h6 mb-0">Sesiones</h2>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary"
+          (click)="closeOffcanvas()"
+        >
+          <i class="ai-cross me-1"></i>
+          Cerrar
+        </button>
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-sm btn-secondary w-100 mb-2"
+        (click)="startNewSession(); offcanvas.close('new-session')"
+        [disabled]="sending"
+      >
+        <span class="me-1">+</span>
+        Nueva sesión
+      </button>
+
+      <div class="position-relative">
+        <input
+          class="form-control pe-5"
+          type="text"
+          [(ngModel)]="term"
+          (keyup)="filterChat()"
+          placeholder="Buscar por título o canal"
+        />
+        <i
+          class="ai-search fs-lg text-nav position-absolute top-50 end-0 translate-middle-y me-3"
+        ></i>
+      </div>
+    </div>
+
+    <!-- Lista de sesiones -->
+    <ngx-simplebar
+      class="card-body px-0 pb-4 pt-1 flex-grow-1"
+      style="max-height: 100%; overflow-x: hidden"
+    >
+      <button
+        *ngFor="
+          let s of filteredSessions;
+          let i = index;
+          trackBy: trackBySessionId
+        "
+        type="button"
+        class="session-item d-flex align-items-center text-decoration-none px-3 py-3 border-0 w-100 text-start bg-transparent"
+        [ngClass]="{ 'bg-gray': activeTab === i }"
+        (click)="selectSession(s, i); offcanvas.close('select-session')"
+      >
+        <div
+          class="d-flex align-items-center justify-content-center position-relative flex-shrink-0 rounded-circle text-primary fs-lg fw-semibold"
+          style="
+            width: 40px;
+            height: 40px;
+            background-color: rgba(var(--ar-primary-rgb), 0.15);
+          "
+        >
+          {{ (s.title || "TSJ").slice(0, 2).toUpperCase() }}
+        </div>
+
+        <div
+          class="d-flex justify-content-between align-items-center flex-grow-1 min-w-0 ps-2 ms-1"
+        >
+          <div class="me-2 min-w-0">
+            <div
+              class="text-truncate mb-1"
+              style="max-width: 200px; font-size: 0.9rem; font-weight: 500"
+            >
+              {{ s.title || "Consulta sin título" }}
+            </div>
+            <p class="text-body fs-xs mb-0">
+              {{ s.channel || "web" }}
+            </p>
+          </div>
+          <div class="text-end flex-shrink-0">
+            <span class="d-block fs-xs text-body-secondary">
+              {{ s.createdAt | date: "short" }}
+            </span>
+          </div>
+        </div>
+      </button>
+
+      <div
+        class="px-4 pt-2 text-body-secondary fs-sm"
+        *ngIf="filteredSessions.length === 0 && !loadingSessions"
+      >
+        <p class="mb-1 fw-semibold">Sin sesiones registradas</p>
+        <p class="mb-0">
+          Cree su primera consulta usando el botón
+          <strong>“Nueva sesión”</strong>.
+        </p>
+      </div>
+    </ngx-simplebar>
+  </div>
+</ng-template>

@@ -1,28 +1,18 @@
-// src/app/app.routes.ts
-import { Routes } from '@angular/router';
-
-import { ChatComponent } from './chat/chat.component';
-import { ListaUsuariosComponent } from './usuarios/lista-usuarios/lista-usuarios.component';
-import { CrearUsuariosComponent } from './usuarios/crear-usuarios/crear-usuarios.component';
-import { EditarUsuariosComponent } from './usuarios/editar-usuarios/editar-usuarios.component';
+import { Routes } from '@angular/router'
+import { AccountLayoutComponent } from './layouts/account-layout.component'
 
 export const routes: Routes = [
-  // 💬 Chat principal
-  { path: 'chat', component: ChatComponent },
-
-  // 👤 Usuarios
   {
-    path: 'usuarios',
-    children: [
-      { path: '', component: ListaUsuariosComponent },       // /usuarios
-      { path: 'crear', component: CrearUsuariosComponent },  // /usuarios/crear
-      { path: ':id', component: EditarUsuariosComponent },   // /usuarios/123
-    ],
+    path: '',
+    loadChildren: () =>
+      import('./pages/account/auth/auth.route').then((mod) => mod.AUTH_ROUTES),
   },
-
-  // Ruta por defecto → chat
-  { path: '', redirectTo: 'chat', pathMatch: 'full' },
-
-  // Cualquier cosa rara → chat
-  { path: '**', redirectTo: 'chat' },
-];
+  {
+    path: 'account',
+    component: AccountLayoutComponent,
+    loadChildren: () =>
+      import('./pages/account/pages/account.route').then(
+        (mod) => mod.ACCOUNT_ROUTES
+      ),
+  },
+]

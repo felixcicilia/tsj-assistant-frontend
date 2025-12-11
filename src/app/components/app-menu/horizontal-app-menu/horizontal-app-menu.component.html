@@ -1,0 +1,197 @@
+<nav class="collapse navbar-collapse" id="navbarNav">
+  <ul
+    class="navbar-nav navbar-nav-scroll me-auto"
+    style="--ar-scroll-height: 520px"
+  >
+    @for (item of megaMenuItems; track item.key) {
+        <li class="nav-item dropdown">
+          <a
+            [ngClass]="[
+              'nav-link dropdown-toggle',
+              activeMenuItems.includes(item.key) ? ' active' : '',
+            ]"
+            href="javascript:void(0);"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            {{ item.label }}
+          </a>
+
+          @if (item.children) {
+            <div class="dropdown-menu overflow-hidden p-0">
+              <div class="d-lg-flex">
+                @for (chunk of splitMegaMenuItems; track $index) {
+                  <div class="mega-dropdown-column pt-1 pt-lg-3 pb-lg-4">
+                    <ul class="list-unstyled mb-0">
+                      @for (
+                        menuItem of chunk;
+                        track menuItem.key;
+                        let idx = $index
+                      ) {
+                        <ng-container
+                          *ngTemplateOutlet="
+                            megaMenuItem;
+                            context: {
+                              item: menuItem,
+                              imageClassName:
+                                idx === 0
+                                  ? 'rounded-3 rounded-start-0'
+                                  : 'z-2 opacity-0',
+                            }
+                          "
+                        />
+                      }
+                    </ul>
+                  </div>
+                }
+                <div
+                  class="mega-dropdown-column position-relative border-start z-3"
+                ></div>
+              </div>
+            </div>
+          }
+        </li>
+    }
+    @for (item of normalMenuItems; track item.key) {
+      @if (item.children) {
+        <ng-container
+          *ngTemplateOutlet="
+            menuItemWithChildren;
+            context: {
+              item,
+              className: 'dropdown nav-item ',
+              linkClassName:
+                'nav-link dropdown-toggle' +
+                (activeMenuItems.includes(item.key) ? ' active' : ''),
+              childLinkClassName: 'dropdown-item dropdown-toggle',
+            }
+          "
+        />
+      } @else {
+        <ng-container
+          *ngTemplateOutlet="
+            menuItem;
+            context: {
+              item,
+              linkClassName:
+                'nav-link' +
+                (activeMenuItems.includes(item.key) ? ' active' : ''),
+            }
+          "
+        />
+      }
+    }
+  </ul>
+  <div class="d-sm-none p-3 mt-n3">
+    <a
+      class="btn btn-primary w-100 mb-1"
+      target="_blank"
+      rel="noopener"
+    >
+      <i class="ai-cart fs-xl me-2 ms-n1"></i>
+      Buy now
+    </a>
+  </div>
+</nav>
+
+<ng-template #megaMenuItem let-item="item" let-imageClassName="imageClassName">
+  <li>
+    <ng-container
+      *ngTemplateOutlet="
+        menuItemLink;
+        context: {
+          item,
+          linkClassName:
+            'dropdown-item' +
+            (activeMenuItems.includes(item.key) ? ' active' : ''),
+        }
+      "
+    />
+    <span
+      [ngClass]="[
+        'mega-dropdown-column position-absolute top-0 end-0 h-100 bg-size-cover bg-repeat-0 ',
+        imageClassName,
+      ]"
+      [style.background-image]="'url(' + item.image + ')'"
+    ></span>
+  </li>
+</ng-template>
+
+<ng-template
+  #menuItemWithChildren
+  let-item="item"
+  let-className="className"
+  let-linkClassName="linkClassName"
+  let-childLinkClassName="childLinkClassName"
+>
+  <li class="{{ className }}">
+    <a
+      class="{{ linkClassName }}"
+      href="javascript:void(0);"
+      data-bs-toggle="dropdown"
+      data-bs-auto-close="outside"
+      aria-expanded="false"
+      >{{ item.label }}</a
+    >
+    <ul class="dropdown-menu">
+      @for (child of item.children; track child.key) {
+        @if (child.children) {
+          <ng-container
+            *ngTemplateOutlet="
+              menuItemWithChildren;
+              context: {
+                item: child,
+                className: 'dropdown',
+                linkClassName:
+                  childLinkClassName +
+                  (activeMenuItems.includes(child.key) ? ' active' : ''),
+              }
+            "
+          />
+        } @else {
+          <ng-container
+            *ngTemplateOutlet="
+              menuItem;
+              context: {
+                item: child,
+                linkClassName: activeMenuItems.includes(child.key)
+                  ? ' active'
+                  : '',
+              }
+            "
+          />
+        }
+      }
+    </ul>
+  </li>
+</ng-template>
+
+<ng-template
+  #menuItem
+  let-item="item"
+  let-className="className"
+  let-linkClassName="linkClassName"
+  let-activeMenuItems="activeMenuItems"
+>
+  <li [ngClass]="className">
+    <ng-container
+      *ngTemplateOutlet="
+        menuItemLink;
+        context: {
+          item,
+          linkClassName: 'dropdown-item ' + linkClassName,
+        }
+      "
+    />
+  </li>
+</ng-template>
+
+<ng-template #menuItemLink let-item="item" let-className="linkClassName">
+  <a
+    [ngClass]="className"
+    [routerLink]="item.url"
+    [target]="item.target ?? '_self'"
+  >
+    {{ item.label }}
+  </a>
+</ng-template>

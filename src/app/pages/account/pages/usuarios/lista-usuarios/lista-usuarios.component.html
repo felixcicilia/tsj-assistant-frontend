@@ -1,0 +1,123 @@
+<div class="container py-3 py-md-4">
+  <!-- Header: título + botón -->
+  <div
+    class="d-flex flex-wrap align-items-center gap-2 mb-3 mb-md-4"
+  >
+    <div>
+      <h1 class="h2 mb-1">Usuarios</h1>
+      <p class="text-body-secondary mb-0 fs-sm">
+        Gestione las cuentas registradas en el sistema.
+      </p>
+    </div>
+
+    <div class="ms-auto">
+      <a
+        routerLink="/account/users/crear"
+        class="btn btn-primary btn-lg d-flex align-items-center"
+      >
+        <i class="ai-user-plus me-2"></i>
+        Nuevo usuario
+      </a>
+    </div>
+  </div>
+
+  <!-- Card principal -->
+  <div class="card border-0 py-1 p-md-2 p-xl-3 p-xxl-4">
+    <div class="card-body pb-4">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="border-bottom">
+            <tr>
+              <th class="text-body-secondary text-uppercase fs-xs fw-semibold">
+                Usuario
+              </th>
+              <th class="d-none d-md-table-cell text-body-secondary text-uppercase fs-xs fw-semibold">
+                Contacto
+              </th>
+              <th class="d-none d-lg-table-cell text-body-secondary text-uppercase fs-xs fw-semibold">
+                Ubicación
+              </th>
+              <th class="text-end text-body-secondary text-uppercase fs-xs fw-semibold">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <!-- Fila por usuario -->
+            <tr *ngFor="let u of users">
+              <!-- Columna usuario + avatar iniciales -->
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="flex-shrink-0 me-3">
+                    <div
+                      class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-uppercase fw-semibold text-white"
+                      style="width: 40px; height: 40px;"
+                    >
+                      {{ (u.name || '?')[0] }}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="fw-semibold">
+                      {{ u.name }} {{ u.lastName }}
+                    </div>
+                    <div class="text-body-secondary fs-sm">
+                      {{ u.documentId || 'Sin documento' }}
+                    </div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Columna contacto -->
+              <td class="d-none d-md-table-cell">
+                <div class="fs-sm">
+                  <span class="text-body-secondary">Correo:&nbsp;</span>
+                  <span class="fw-medium">{{ u.email }}</span>
+                </div>
+                <div class="fs-sm">
+                  <span class="text-body-secondary">Teléfono:&nbsp;</span>
+                  <span class="fw-medium">{{ u.phone || '-' }}</span>
+                </div>
+              </td>
+
+              <!-- Columna ubicación -->
+              <td class="d-none d-lg-table-cell">
+                <div class="fs-sm">
+                  <span class="text-body-secondary">Estado:&nbsp;</span>
+                  <span class="fw-medium">{{ u.state || '-' }}</span>
+                </div>
+                <div class="fs-sm">
+                  <span class="text-body-secondary">País:&nbsp;</span>
+                  <span class="fw-medium">{{ u.country || '-' }}</span>
+                </div>
+              </td>
+
+              <!-- Acciones -->
+              <td class="text-end">
+                <a
+                  [routerLink]="['/account/users', u.id]"
+                  class="btn btn-sm btn-outline-primary d-inline-flex align-items-center"
+                >
+                  <i class="ai-edit me-1"></i>
+                  Editar
+                </a>
+              </td>
+            </tr>
+
+            <!-- Estado vacío -->
+            <tr *ngIf="!users || users.length === 0">
+              <td colspan="4" class="text-center py-4">
+                <p class="mb-1 fw-semibold">No hay usuarios registrados</p>
+                <p class="mb-0 text-body-secondary fs-sm">
+                  Cree su primer usuario usando el botón
+                  <strong>“Nuevo usuario”</strong>.
+                </p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,182 @@
+<main class="page-wrapper">
+  <component-navigation-bar-7 />
+
+  <div class="container py-5 mt-4 mt-lg-5 mb-lg-4 my-xl-5">
+    <div class="row pt-sm-2 pt-lg-0">
+      <!-- =======================
+           SIDEBAR IZQUIERDO
+      ======================== -->
+      <aside class="col-lg-3 pe-lg-4 pe-xl-5 mt-n3">
+        <div class="position-lg-sticky top-0">
+          <div class="d-none d-lg-block" style="padding-top: 105px"></div>
+
+          <div class="offcanvas-start offcanvas-lg" id="sidebarAccount">
+            <button
+              class="btn-close position-absolute top-0 end-0 mt-3 me-3 d-lg-none"
+              type="button"
+              data-bs-dismiss="offcanvas"
+              data-bs-target="#sidebarAccount"
+              aria-label="Cerrar"
+            ></button>
+
+            <div class="offcanvas-body">
+              <!-- ✨ Datos reales del usuario -->
+              <div class="pb-2 pb-lg-0 mb-4 mb-lg-5">
+                <div class="d-flex align-items-center gap-3">
+                  <!-- Avatar circular -->
+                  <div
+                    class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary text-white fs-5 fw-bold"
+                    style="width: 48px; height: 48px"
+                  >
+                    {{ userInitial }}
+                  </div>
+
+                  <!-- Nombre + email -->
+                  <div>
+                    <h3 class="h6 mb-1">
+                      {{ userName }} {{ userLastName }}, {{ roleName }}
+                    </h3>
+                    <p class="fs-sm text-body-secondary mb-0">
+                      {{ userEmail }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- =======================
+                   MENÚ DINÁMICO (ESCRITORIO)
+              ======================== -->
+              @for (item of menu; track $index; let last = $last) {
+                <nav
+                  class="nav flex-column pb-2 pb-lg-4"
+                  [ngClass]="last ? 'mb-1' : 'mb-3'"
+                >
+                  <h4
+                    *ngIf="item.items"
+                    class="fs-xs fw-medium text-body-secondary text-uppercase pb-1 mb-2"
+                  >
+                    {{ item.label }}
+                  </h4>
+
+                  @for (data of item.items; track $index) {
+                    <a
+                      class="nav-link fw-semibold py-2 px-0"
+                      [routerLink]="data.link"
+                      routerLinkActive="active"
+                    >
+                      <i class="{{ data.icon }} fs-5 opacity-60 me-2"></i>
+                      {{ data.label }}
+                    </a>
+                  }
+                </nav>
+              }
+
+              <!-- =======================
+                   CERRAR SESIÓN
+              ======================== -->
+              <nav class="nav flex-column">
+                <a
+                  class="nav-link fw-semibold py-2 px-0 text-danger"
+                  (click)="onLogout()"
+                >
+                  <i class="ai-logout fs-5 opacity-60 me-2"></i>
+                  Cerrar sesión
+                </a>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- =======================
+           CONTENIDO PRINCIPAL
+      ======================== -->
+      <div class="col-lg-9 pt-4 pb-2 pb-sm-4">
+        <router-outlet />
+      </div>
+    </div>
+  </div>
+
+  <hr class="d-none d-dark-mode-block" />
+
+  <!-- Botón para mobile -->
+  <button
+    class="d-lg-none btn btn-sm fs-sm btn-primary w-100 rounded-0 fixed-bottom"
+    type="button"
+    data-bs-toggle="offcanvas"
+    data-bs-target="#sidebarAccount"
+    (click)="openOffcanvas(content)"
+  >
+    <i class="ai-menu me-2"></i>
+    Menú de cuenta
+  </button>
+</main>
+
+<account-footer />
+
+<!-- =======================
+     OFFCANVAS PARA MOBILE
+======================= -->
+<ng-template #content let-offcanvas class="offcanvas-start" id="sidebarAccount">
+  <button
+    class="btn-close position-absolute top-0 end-0 mt-3 me-3 d-lg-none"
+    type="button"
+    data-bs-dismiss="offcanvas"
+    aria-label="Cerrar"
+    (click)="offcanvas.close('close click')"
+  ></button>
+
+  <div class="offcanvas-body">
+    <!-- Usuario (mobile) -->
+    <div class="pb-2 pb-lg-0 mb-4 mb-lg-5 text-center">
+      <div
+        class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary text-white fs-3 fw-bold mb-2"
+        style="width: 80px; height: 80px"
+      >
+        {{ userInitial }}
+      </div>
+      <h3 class="h5 mb-1">{{ userName }}</h3>
+      <p class="fs-sm text-body-secondary mb-0">
+        {{ userEmail }}
+      </p>
+    </div>
+
+    <!-- MENÚ DINÁMICO (MOBILE) -->
+    @for (item of menu; track $index; let last = $last) {
+      <nav
+        class="nav flex-column pb-2 pb-lg-4"
+        [ngClass]="last ? 'mb-1' : 'mb-3'"
+      >
+        <h4
+          *ngIf="item.items"
+          class="fs-xs fw-medium text-body-secondary text-uppercase pb-1 mb-2"
+        >
+          {{ item.label }}
+        </h4>
+
+        @for (data of item.items; track $index) {
+          <a
+            class="nav-link fw-semibold py-2 px-0"
+            [routerLink]="data.link"
+            routerLinkActive="active"
+            (click)="offcanvas.close('nav click')"
+          >
+            <i class="{{ data.icon }} fs-5 opacity-60 me-2"></i>
+            {{ data.label }}
+          </a>
+        }
+      </nav>
+    }
+
+    <!-- Logout en mobile -->
+    <nav class="nav flex-column">
+      <a
+        class="nav-link fw-semibold py-2 px-0 text-danger"
+        (click)="onLogout(); offcanvas.close('logout')"
+      >
+        <i class="ai-logout fs-5 opacity-60 me-2"></i>
+        Cerrar sesión
+      </a>
+    </nav>
+  </div>
+</ng-template>
